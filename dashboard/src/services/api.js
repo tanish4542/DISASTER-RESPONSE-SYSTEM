@@ -1,0 +1,45 @@
+const API_BASE_URL = 'http://localhost:8000';
+
+async function parseJson(response) {
+  const text = await response.text();
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    return text;
+  }
+}
+
+async function request(path, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  const data = await parseJson(response);
+
+  if (!response.ok) {
+    const message =
+      typeof data === 'string' && data ? data : data?.detail || 'Request failed';
+    throw new Error(message);
+  }
+
+  return data;
+}
+
+export async function getEmergencies() {
+  return request('/api/emergencies');
+}
+
+export async function updateEmergencyStatus(id, status) {
+  return request(`/api/emergencies/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
+}

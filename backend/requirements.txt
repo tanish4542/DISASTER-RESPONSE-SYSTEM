@@ -1,0 +1,26 @@
+# FastAPI Backend Requirements
+# Phase 2: Core backend and database
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Database
+sqlalchemy==2.0.23
+
+# Data Validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Utilities
+python-dotenv==1.0.0
+python-multipart==0.0.6
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# Note: ML and CV dependencies (scikit-learn, torch, opencv-python, etc.)
+# will be added in Phase 5-6 when those modules are implemented
+# SQLite3 is built-in to Python, no installation needed

@@ -1,0 +1,249 @@
+import { useState } from 'react';
+import {
+  Alert,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+
+import { createEmergency } from '@/storage/emergencyRepository';
+
+const initialFormState = {
+  message: '',
+  people_affected: '1',
+  injured: false,
+  trapped: false,
+  fire: false,
+  medical_emergency: false,
+  urgency: '3',
+};
+
+export default function SOSScreen() {
+  const [form, setForm] = useState(initialFormState);
+  const [error, setError] = useState('');
+  const [savedEmergency, setSavedEmergency] = useState(null);
+
+  const updateField = (key, value) => {
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const validateForm = () => {
+    if (!form.message || form.message.trim().length < 5) {
+      return 'Emergency description must be at least 5 characters.';
+    }
+
+    const peopleAffected = Number(form.people_affected);
+    if (!Number.isInteger(peopleAffected) || peopleAffected < 1) {
+      return 'People affected must be a whole number of at least 1.';
+    }
+
+    const urgency = Number(form.urgency);
+    if (!Number.isInteger(urgency) || urgency < 1 || urgency > 5) {
+      return 'Urgency must be between 1 and 5.';
+    }
+
+    return '';
+  };
+
+  const handleSubmit = () => {
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      setSavedEmergency(null);
+      return;
+    }
+
+    const emergencyPayload = {
+      local_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      message: form.message.trim(),
+      latitude: null,
+      longitude: null,
+      people_affected: Number(form.people_affected),
+      injured: Boolean(form.injured),
+      trapped: Boolean(form.trapped),
+      fire: Boolean(form.fire),
+      medical_emergency: Boolean(form.medical_emergency),
+      urgency: Number(form.urgency),
+      status: 'PENDING',
+      sync_status: 'PENDING',
+      priority_score: null,
+      priority_level: null,
+    };
+
+    try {
+      const saved = createEmergency(emergencyPayload);
+      setSavedEmergency(saved);
+      setError('');
+      setForm(initialFormState);
+      Alert.alert('SOS SAVED', `Local ID: ${saved?.local_id || emergencyPayload.local_id}`);
+    } catch (submitError) {
+      setError('Could not save the SOS locally. Please try again.');
+      setSavedEmergency(null);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <Text style={styles.title}>Emergency SOS</Text>
+
+        <View style={styles.formCard}>
+          <Text style={styles.label}>Emergency description</Text>
+          <TextInput
+            style={styles.input}
+            value={form.message}
+            onChangeText={(value) => updateField('message', value)}
+            placeholder="Describe the emergency"
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
+
+          <Text style={styles.label}>People affected</Text>
+          <TextInput
+            style={styles.input}
+            value={form.people_affected}
+            onChangeText={(value) => updateField('people_affected', value.replace(/[^0-9]/g, ''))}
+            keyboardType="number-pad"
+            placeholder="1"
+          />
+
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Injured</Text>
+            <Switch value={form.injured} onValueChange={(value) => updateField('injured', value)} />
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Trapped</Text>
+            <Switch value={form.trapped} onValueChange={(value) => updateField('trapped', value)} />
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Fire</Text>
+            <Switch value={form.fire} onValueChange={(value) => updateField('fire', value)} />
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Medical emergency</Text>
+            <Switch value={form.medical_emergency} onValueChange={(value) => updateField('medical_emergency', value)} />
+          </View>
+
+          <Text style={styles.label}>Urgency (1-5)</Text>
+          <TextInput
+            style={styles.input}
+            value={form.urgency}
+            onChangeText={(value) => updateField('urgency', value.replace(/[^1-5]/g, '').slice(0, 1))}
+            keyboardType="number-pad"
+            placeholder="3"
+          />
+
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+          <Pressable style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>SAVE SOS</Text>
+          </Pressable>
+
+          {savedEmergency ? (
+            <View style={styles.successBox}>
+              <Text style={styles.successTitle}>SOS SAVED</Text>
+              <Text style={styles.successText}>Local ID: {savedEmergency.local_id}</Text>
+            </View>
+          ) : null}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f4f7fb',
+  },
+  container: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#102a43',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  formCard: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#102a43',
+    marginBottom: 8,
+    marginTop: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#d9e2ec',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: '#f8fafc',
+    color: '#102a43',
+    marginBottom: 12,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 8,
+  },
+  rowLabel: {
+    fontSize: 15,
+    color: '#102a43',
+  },
+  errorText: {
+    color: '#b42318',
+    fontSize: 14,
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  button: {
+    backgroundColor: '#d62828',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  successBox: {
+    marginTop: 18,
+    backgroundColor: '#ecfdf3',
+    borderColor: '#a7f3d0',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+  },
+  successTitle: {
+    color: '#065f46',
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  successText: {
+    color: '#065f46',
+  },
+});

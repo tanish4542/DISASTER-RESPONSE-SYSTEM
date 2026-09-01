@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: disaster-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - disaster-network
+
+  # Dashboard (development mode)
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile.dev
+    container_name: disaster-dashboard
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+    command: npm run dev
+    networks:
+      - disaster-network
+    depends_on:
+      - backend
+
+  # SQLite Database (shared volume)
+  database:
+    image: alpine:latest
+    container_name: disaster-db
+    volumes:
+      - ./database/data:/data
+    networks:
+      - disaster-network
+    command: echo "Database volume ready"
+
+networks:
+  disaster-network:
+    driver: bridge
+
+volumes:
+  db_data:
+    driver: local
