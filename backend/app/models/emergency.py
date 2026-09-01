@@ -7,8 +7,8 @@ class Emergency(Base):
     __tablename__ = "emergencies"
     id = Column(Integer, primary_key=True, index=True)
     message = Column(String, nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
     people_affected = Column(Integer, nullable=False)
     injured = Column(Boolean, default=False)
     trapped = Column(Boolean, default=False)

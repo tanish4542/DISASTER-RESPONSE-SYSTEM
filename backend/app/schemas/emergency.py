@@ -5,8 +5,8 @@ from typing import Optional, Literal
 
 class EmergencyCreate(BaseModel):
     message: str = Field(..., min_length=1, max_length=500)
-    latitude: float = Field(..., ge=-90, le=90)
-    longitude: float = Field(..., ge=-180, le=180)
+    latitude: Optional[float] = Field(None, ge=-90, le=90)
+    longitude: Optional[float] = Field(None, ge=-180, le=180)
     people_affected: int = Field(..., ge=1)
     injured: bool = Field(default=False)
     trapped: bool = Field(default=False)
@@ -33,8 +33,8 @@ class EmergencyUpdate(BaseModel):
 class EmergencyResponse(BaseModel):
     id: int
     message: str
-    latitude: float
-    longitude: float
+    latitude: Optional[float]
+    longitude: Optional[float]
     people_affected: int
     injured: bool
     trapped: bool

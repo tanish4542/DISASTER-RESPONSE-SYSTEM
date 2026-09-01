@@ -1,9 +1,7 @@
-import { useRouter } from 'expo-router';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
-  const router = useRouter();
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -12,9 +10,9 @@ export default function HomeScreen() {
           Emergency assistance when communication infrastructure is unavailable.
         </Text>
 
-        <Pressable style={styles.button} onPress={() => router.push('/sos')}>
+        <Link href="/sos" style={styles.button}>
           <Text style={styles.buttonText}>🚨 SEND SOS</Text>
-        </Pressable>
+        </Link>
       </View>
     </SafeAreaView>
   );

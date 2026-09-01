@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 
 import { createEmergency } from '@/storage/emergencyRepository';
-import { syncPendingEmergencies } from '@/services/syncService';
+import { syncEmergency, syncPendingEmergencies } from '@/services/syncService';
 import { getCurrentLocation } from '@/services/location';
 
 const initialFormState = {
@@ -101,9 +101,9 @@ export default function SOSScreen() {
 
       let synced = false;
       try {
-        const syncedLocalIds = await syncPendingEmergencies();
-        synced = syncedLocalIds.includes(localId);
+        synced = await syncEmergency(emergencyPayload);
       } catch (syncError) {
+        setError(`Synchronization failed: ${syncError.message}`);
         synced = false;
       }
 

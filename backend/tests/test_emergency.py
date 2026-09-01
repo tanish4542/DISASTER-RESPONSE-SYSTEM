@@ -70,6 +70,18 @@ def test_create_emergency_invalid_latitude(client):
     })
     assert response.status_code == 422
 
+def test_create_emergency_without_coordinates(client):
+    response = client.post("/api/emergencies", json={
+        "message": "GPS unavailable emergency", "latitude": None, "longitude": None,
+        "people_affected": 1, "injured": False, "trapped": False,
+        "fire": False, "medical_emergency": False, "urgency": 3,
+    })
+    assert response.status_code == 201
+    data = response.json()
+    assert data["latitude"] is None
+    assert data["longitude"] is None
+    assert data["status"] == "PENDING"
+
 def test_create_emergency_invalid_longitude(client):
     response = client.post("/api/emergencies", json={
         "message": "Test", "latitude": 0, "longitude": 181, "people_affected": 1,

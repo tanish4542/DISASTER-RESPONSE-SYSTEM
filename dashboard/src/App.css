@@ -122,6 +122,104 @@
   border-radius: 10px;
 }
 
+.map-panel {
+  background: white;
+  border: 1px solid #dfeaf7;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+}
+
+.map-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.map-heading .eyebrow {
+  margin-bottom: 4px;
+}
+
+.map-heading h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.map-count {
+  color: #53657f;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.map-wrapper {
+  position: relative;
+  min-height: 360px;
+}
+
+.emergency-map {
+  height: 360px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.map-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  color: #53657f;
+  font-size: 0.92rem;
+}
+
+.map-popup {
+  min-width: 220px;
+  display: grid;
+  gap: 8px;
+  color: #14213d;
+}
+
+.map-popup p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.map-popup dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 12px;
+  margin: 0;
+}
+
+.map-popup dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.map-popup dt {
+  color: #60718c;
+}
+
+.map-popup dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.map-popup button {
+  border: 0;
+  border-radius: 7px;
+  background: #1d4ed8;
+  color: white;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
 .state-box {
   background: white;
   border: 1px solid #dfeaf7;

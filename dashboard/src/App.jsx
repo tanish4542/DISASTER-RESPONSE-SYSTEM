@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
+import 'leaflet/dist/leaflet.css';
 import { getEmergencies, updateEmergencyStatus } from './services/api';
+import EmergencyMap from './components/EmergencyMap';
 
 const STATUS_OPTIONS = ['PENDING', 'ACKNOWLEDGED', 'IN_PROGRESS', 'RESOLVED'];
 const PRIORITY_FILTERS = ['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
@@ -138,6 +140,8 @@ function App() {
       </section>
 
       {statusMessage ? <div className="status-message">{statusMessage}</div> : null}
+
+      <EmergencyMap emergencies={emergencies} onSelectEmergency={setSelectedId} />
 
       {loading ? (
         <div className="state-box">Loading emergencies...</div>

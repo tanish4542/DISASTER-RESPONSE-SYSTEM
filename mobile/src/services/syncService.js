@@ -4,6 +4,12 @@ import {
   updateEmergencySyncStatus,
 } from '@/storage/emergencyRepository';
 
+export async function syncEmergency(emergency) {
+  await createEmergencyOnServer(emergency);
+  updateEmergencySyncStatus(emergency.local_id, 'SYNCED');
+  return true;
+}
+
 export async function syncPendingEmergencies() {
   const pendingEmergencies = getPendingEmergencies();
   const syncedLocalIds = [];
