@@ -8,8 +8,8 @@ export async function createEmergencyOnServer(emergency) {
     },
     body: JSON.stringify({
       message: emergency.message,
-      latitude: emergency.latitude ?? 0,
-      longitude: emergency.longitude ?? 0,
+      latitude: emergency.latitude,
+      longitude: emergency.longitude,
       people_affected: emergency.people_affected,
       injured: Boolean(emergency.injured),
       trapped: Boolean(emergency.trapped),

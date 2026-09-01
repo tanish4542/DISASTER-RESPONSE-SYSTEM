@@ -13,6 +13,7 @@ import {
 
 import { createEmergency } from '@/storage/emergencyRepository';
 import { syncPendingEmergencies } from '@/services/syncService';
+import { getCurrentLocation } from '@/services/location';
 
 const initialFormState = {
   message: '',
@@ -28,6 +29,7 @@ export default function SOSScreen() {
   const [form, setForm] = useState(initialFormState);
   const [error, setError] = useState('');
   const [savedEmergency, setSavedEmergency] = useState(null);
+  const [locationStatus, setLocationStatus] = useState('Location will be requested before saving.');
 
   const updateField = (key, value) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -59,11 +61,25 @@ export default function SOSScreen() {
       return;
     }
 
+    setLocationStatus('📍 Getting location...');
+    let location = null;
+    try {
+      location = await getCurrentLocation();
+    } catch (locationError) {
+      location = null;
+    }
+
+    if (location) {
+      setLocationStatus('📍 Location captured');
+    } else {
+      setLocationStatus('⚠️ Location unavailable');
+    }
+
     const emergencyPayload = {
       local_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       message: form.message.trim(),
-      latitude: null,
-      longitude: null,
+      latitude: location?.latitude ?? null,
+      longitude: location?.longitude ?? null,
       people_affected: Number(form.people_affected),
       injured: Boolean(form.injured),
       trapped: Boolean(form.trapped),
@@ -119,6 +135,7 @@ export default function SOSScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>Emergency SOS</Text>
+        <Text style={styles.locationStatus}>{locationStatus}</Text>
 
         <View style={styles.formCard}>
           <Text style={styles.label}>Emergency description</Text>
@@ -188,6 +205,11 @@ export default function SOSScreen() {
               <Text style={styles.successText}>Local ID: {savedEmergency.local_id}</Text>
               <Text style={styles.successText}>Status: {savedEmergency.status}</Text>
               <Text style={styles.successText}>Sync status: {savedEmergency.sync_status}</Text>
+              {savedEmergency.latitude !== null && savedEmergency.longitude !== null ? (
+                <Text style={styles.successText}>
+                  Coordinates: {savedEmergency.latitude}, {savedEmergency.longitude}
+                </Text>
+              ) : null}
             </View>
           ) : null}
         </View>
@@ -211,6 +233,11 @@ const styles = StyleSheet.create({
     color: '#102a43',
     marginBottom: 16,
     textAlign: 'center',
+  },
+  locationStatus: {
+    color: '#3d4d63',
+    textAlign: 'center',
+    marginBottom: 14,
   },
   formCard: {
     backgroundColor: '#fff',
