@@ -101,6 +101,26 @@ export function getAllEmergencies() {
   }));
 }
 
+export function getPendingEmergencies() {
+  const db = getDatabase();
+  if (!db) {
+    return [];
+  }
+
+  const rows = db.getAllSync(
+    `SELECT * FROM emergencies WHERE sync_status = ? ORDER BY created_at ASC;`,
+    ['PENDING'],
+  );
+
+  return rows.map((row) => ({
+    ...row,
+    injured: Boolean(row.injured),
+    trapped: Boolean(row.trapped),
+    fire: Boolean(row.fire),
+    medical_emergency: Boolean(row.medical_emergency),
+  }));
+}
+
 export function getEmergencyByLocalId(localId) {
   const db = getDatabase();
   if (!db) {

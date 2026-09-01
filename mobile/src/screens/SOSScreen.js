@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { createEmergency } from '@/storage/emergencyRepository';
+import { syncPendingEmergencies } from '@/services/syncService';
 
 const initialFormState = {
   message: '',
@@ -50,7 +51,7 @@ export default function SOSScreen() {
     return '';
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -77,13 +78,40 @@ export default function SOSScreen() {
 
     try {
       const saved = createEmergency(emergencyPayload);
-      setSavedEmergency(saved);
+      const localId = saved?.local_id || emergencyPayload.local_id;
+      setSavedEmergency({ ...saved, local_id: localId, sync_status: 'PENDING' });
       setError('');
       setForm(initialFormState);
-      Alert.alert('SOS SAVED', `Local ID: ${saved?.local_id || emergencyPayload.local_id}`);
+
+      let synced = false;
+      try {
+        const syncedLocalIds = await syncPendingEmergencies();
+        synced = syncedLocalIds.includes(localId);
+      } catch (syncError) {
+        synced = false;
+      }
+
+      if (synced) {
+        setSavedEmergency((current) => ({ ...current, sync_status: 'SYNCED' }));
+        Alert.alert('SOS SENT', 'Your emergency was saved and sent to the rescue server.');
+      } else {
+        Alert.alert(
+          'SOS SAVED OFFLINE',
+          'Your emergency is safely stored on this device and will be sent when connectivity is available.',
+        );
+      }
     } catch (submitError) {
       setError('Could not save the SOS locally. Please try again.');
       setSavedEmergency(null);
+    }
+  };
+
+  const handleSyncPending = async () => {
+    const syncedLocalIds = await syncPendingEmergencies();
+    if (syncedLocalIds.length > 0) {
+      Alert.alert('SOS SENT', `${syncedLocalIds.length} pending SOS sent to the rescue server.`);
+    } else {
+      Alert.alert('NO SOS SENT', 'No pending SOS could be synchronized right now.');
     }
   };
 
@@ -148,10 +176,18 @@ export default function SOSScreen() {
             <Text style={styles.buttonText}>SAVE SOS</Text>
           </Pressable>
 
+          <Pressable style={styles.secondaryButton} onPress={handleSyncPending}>
+            <Text style={styles.secondaryButtonText}>SYNC PENDING SOS</Text>
+          </Pressable>
+
           {savedEmergency ? (
             <View style={styles.successBox}>
-              <Text style={styles.successTitle}>SOS SAVED</Text>
+              <Text style={styles.successTitle}>
+                {savedEmergency.sync_status === 'SYNCED' ? '🚨 SOS SENT' : '🚨 SOS SAVED OFFLINE'}
+              </Text>
               <Text style={styles.successText}>Local ID: {savedEmergency.local_id}</Text>
+              <Text style={styles.successText}>Status: {savedEmergency.status}</Text>
+              <Text style={styles.successText}>Sync status: {savedEmergency.sync_status}</Text>
             </View>
           ) : null}
         </View>
@@ -228,6 +264,19 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    fontWeight: '700',
+  },
+  secondaryButton: {
+    borderColor: '#d62828',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  secondaryButtonText: {
+    color: '#d62828',
+    fontSize: 14,
     fontWeight: '700',
   },
   successBox: {
