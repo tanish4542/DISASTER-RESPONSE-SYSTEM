@@ -220,6 +220,96 @@
   font-weight: 600;
 }
 
+.communication-panel {
+  background: #fff;
+  border: 1px solid #dfeaf7;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+}
+
+.communication-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.communication-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.communication-description,
+.communication-empty {
+  color: #53657f;
+  font-size: 0.88rem;
+  margin-top: 8px;
+}
+
+.communication-flow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.communication-step {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid #dfeaf7;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.communication-step strong {
+  color: #14213d;
+}
+
+.communication-step span {
+  color: #53657f;
+  font-size: 0.78rem;
+}
+
+.communication-step b {
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  color: #7890ae;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.communication-details {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.communication-details div {
+  display: grid;
+  gap: 5px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e4edf8;
+  border-radius: 10px;
+}
+
+.communication-details span {
+  color: #60718c;
+  font-size: 0.74rem;
+}
+
+.communication-details strong {
+  color: #12263f;
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
 .state-box {
   background: white;
   border: 1px solid #dfeaf7;
@@ -390,6 +480,30 @@
 
 @media (max-width: 900px) {
   .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .communication-flow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .communication-step b {
+    display: none;
+  }
+
+  .communication-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .communication-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .communication-flow,
+  .communication-details {
     grid-template-columns: 1fr;
   }
 }

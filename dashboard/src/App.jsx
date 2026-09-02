@@ -3,6 +3,7 @@ import './App.css';
 import 'leaflet/dist/leaflet.css';
 import { getEmergencies, updateEmergencyStatus } from './services/api';
 import EmergencyMap from './components/EmergencyMap';
+import CommunicationDemo from './components/CommunicationDemo';
 
 const STATUS_OPTIONS = ['PENDING', 'ACKNOWLEDGED', 'IN_PROGRESS', 'RESOLVED'];
 const PRIORITY_FILTERS = ['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
@@ -142,6 +143,7 @@ function App() {
       {statusMessage ? <div className="status-message">{statusMessage}</div> : null}
 
       <EmergencyMap emergencies={emergencies} onSelectEmergency={setSelectedId} />
+      <CommunicationDemo />
 
       {loading ? (
         <div className="state-box">Loading emergencies...</div>
