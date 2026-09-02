@@ -12,6 +12,43 @@ export async function initializeEmergencyDatabase() {
   }
 }
 
+export function hasForwardedEmergencyId(emergencyId) {
+  try {
+    const db = getDatabase();
+    if (!db) {
+      return false;
+    }
+
+    db.execSync(`
+      CREATE TABLE IF NOT EXISTS forwarded_emergencies (
+        emergency_id TEXT PRIMARY KEY NOT NULL,
+        forwarded_at TEXT NOT NULL
+      );
+    `);
+
+    return Boolean(db.getFirstSync(
+      'SELECT emergency_id FROM forwarded_emergencies WHERE emergency_id = ?;',
+      [emergencyId],
+    ));
+  } catch (error) {
+    console.warn('Forwarded emergency lookup unavailable; continuing:', error);
+    return false;
+  }
+}
+
+export function markEmergencyIdForwarded(emergencyId) {
+  const db = getDatabase();
+  if (!db) {
+    return false;
+  }
+
+  db.runSync(
+    'INSERT OR IGNORE INTO forwarded_emergencies (emergency_id, forwarded_at) VALUES (?, ?);',
+    [emergencyId, new Date().toISOString()],
+  );
+  return true;
+}
+
 export function createEmergency(emergency) {
   const db = getDatabase();
   const localId = emergency.local_id || uuidv4();

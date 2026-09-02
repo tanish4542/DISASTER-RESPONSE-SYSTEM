@@ -17,7 +17,17 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_ADVERTISE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION"
+      ],
+      "package": "com.anonymous.mobile"
     },
     "web": {
       "output": "static",
@@ -28,13 +38,13 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+            "backgroundColor": "#0b1117",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
       ],
-        "expo-sqlite",
-        "expo-location"
+      "expo-sqlite",
+      "expo-location"
     ],
     "experiments": {
       "typedRoutes": true,

@@ -14,6 +14,8 @@ import {
 import { createEmergency } from '@/storage/emergencyRepository';
 import { syncEmergency, syncPendingEmergencies } from '@/services/syncService';
 import { getCurrentLocation } from '@/services/location';
+import { APP_COLORS, APP_RADII, APP_SPACING } from '@/constants/appTheme';
+import { getConnectedDevice, writeTestSosPayload } from '@/services/bleService';
 
 const initialFormState = {
   message: '',
@@ -30,6 +32,7 @@ export default function SOSScreen() {
   const [error, setError] = useState('');
   const [savedEmergency, setSavedEmergency] = useState(null);
   const [locationStatus, setLocationStatus] = useState('Location will be requested before saving.');
+  const [relayStatus, setRelayStatus] = useState('');
 
   const updateField = (key, value) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -99,15 +102,46 @@ export default function SOSScreen() {
       setError('');
       setForm(initialFormState);
 
-      let synced = false;
-      try {
-        synced = await syncEmergency(emergencyPayload);
-      } catch (syncError) {
-        setError(`Synchronization failed: ${syncError.message}`);
-        synced = false;
+      const connectedDevice = getConnectedDevice();
+      let relaySent = false;
+      if (!connectedDevice) {
+        setRelayStatus('Saved locally; no nearby relay is connected.');
+      } else {
+        try {
+          const deviceForWrite = await connectedDevice.requestMTU(158);
+          await writeTestSosPayload(deviceForWrite, {
+            emergency_id: localId,
+            message: emergencyPayload.message,
+            people_affected: emergencyPayload.people_affected,
+            injured: emergencyPayload.injured,
+            trapped: emergencyPayload.trapped,
+            fire: emergencyPayload.fire,
+            medical_emergency: emergencyPayload.medical_emergency,
+            urgency: emergencyPayload.urgency,
+            latitude: emergencyPayload.latitude,
+            longitude: emergencyPayload.longitude,
+          });
+          relaySent = true;
+          setRelayStatus('SOS sent to nearby relay.');
+        } catch (relayError) {
+          console.warn('SOS relay transmission failed:', relayError);
+          setRelayStatus('Saved locally; relay transmission failed.');
+        }
       }
 
-      if (synced) {
+      let synced = false;
+      if (!relaySent) {
+        try {
+          synced = await syncEmergency(emergencyPayload);
+        } catch (syncError) {
+          setError(`Synchronization failed: ${syncError.message}`);
+          synced = false;
+        }
+      }
+
+      if (relaySent) {
+        Alert.alert('SOS SENT TO RELAY', 'Your emergency was saved locally and sent to a nearby relay.');
+      } else if (synced) {
         setSavedEmergency((current) => ({ ...current, sync_status: 'SYNCED' }));
         Alert.alert('SOS SENT', 'Your emergency was saved and sent to the rescue server.');
       } else {
@@ -117,6 +151,7 @@ export default function SOSScreen() {
         );
       }
     } catch (submitError) {
+      console.error('SOS submission failed:', submitError, submitError?.message);
       setError('Could not save the SOS locally. Please try again.');
       setSavedEmergency(null);
     }
@@ -136,6 +171,7 @@ export default function SOSScreen() {
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>Emergency SOS</Text>
         <Text style={styles.locationStatus}>{locationStatus}</Text>
+        {relayStatus ? <Text style={styles.relayStatus}>{relayStatus}</Text> : null}
 
         <View style={styles.formCard}>
           <Text style={styles.label}>Emergency description</Text>
@@ -200,11 +236,17 @@ export default function SOSScreen() {
           {savedEmergency ? (
             <View style={styles.successBox}>
               <Text style={styles.successTitle}>
-                {savedEmergency.sync_status === 'SYNCED' ? '🚨 SOS SENT' : '🚨 SOS SAVED OFFLINE'}
+                {relayStatus === 'Relayed to nearby rescue device'
+                  ? '🚨 RELAYED TO NEARBY RESCUE DEVICE'
+                  : savedEmergency.sync_status === 'SYNCED'
+                    ? '🚨 SOS SENT'
+                    : '🚨 SOS SAVED OFFLINE'}
               </Text>
               <Text style={styles.successText}>Local ID: {savedEmergency.local_id}</Text>
               <Text style={styles.successText}>Status: {savedEmergency.status}</Text>
-              <Text style={styles.successText}>Sync status: {savedEmergency.sync_status}</Text>
+              {relayStatus !== 'Relayed to nearby rescue device' ? (
+                <Text style={styles.successText}>Sync status: {savedEmergency.sync_status}</Text>
+              ) : null}
               {savedEmergency.latitude !== null && savedEmergency.longitude !== null ? (
                 <Text style={styles.successText}>
                   Coordinates: {savedEmergency.latitude}, {savedEmergency.longitude}
@@ -221,48 +263,49 @@ export default function SOSScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f4f7fb',
+    backgroundColor: APP_COLORS.background,
   },
   container: {
-    padding: 20,
-    paddingBottom: 40,
+    padding: APP_SPACING.lg,
+    paddingBottom: 44,
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
-    color: '#102a43',
-    marginBottom: 16,
-    textAlign: 'center',
+    fontWeight: '800',
+    color: APP_COLORS.text,
+    marginBottom: APP_SPACING.sm,
   },
   locationStatus: {
-    color: '#3d4d63',
-    textAlign: 'center',
-    marginBottom: 14,
+    color: APP_COLORS.muted,
+    marginBottom: APP_SPACING.md,
+  },
+  relayStatus: {
+    color: APP_COLORS.accent,
+    fontWeight: '700',
+    marginBottom: APP_SPACING.md,
   },
   formCard: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
+    backgroundColor: APP_COLORS.surface,
+    borderColor: APP_COLORS.border,
+    borderRadius: APP_RADII.lg,
+    borderWidth: 1,
     padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#102a43',
+    color: APP_COLORS.text,
     marginBottom: 8,
     marginTop: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#d9e2ec',
-    borderRadius: 10,
+    borderColor: APP_COLORS.border,
+    borderRadius: APP_RADII.sm,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: '#f8fafc',
-    color: '#102a43',
+    backgroundColor: APP_COLORS.surfaceRaised,
+    color: APP_COLORS.text,
     marginBottom: 12,
   },
   row: {
@@ -273,17 +316,17 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     fontSize: 15,
-    color: '#102a43',
+    color: APP_COLORS.text,
   },
   errorText: {
-    color: '#b42318',
+    color: '#ff8b8f',
     fontSize: 14,
     marginTop: 4,
     marginBottom: 12,
   },
   button: {
-    backgroundColor: '#d62828',
-    borderRadius: 12,
+    backgroundColor: APP_COLORS.danger,
+    borderRadius: APP_RADII.sm,
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 8,
@@ -294,32 +337,32 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   secondaryButton: {
-    borderColor: '#d62828',
+    borderColor: APP_COLORS.danger,
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: APP_RADII.sm,
     paddingVertical: 12,
     alignItems: 'center',
     marginTop: 10,
   },
   secondaryButtonText: {
-    color: '#d62828',
+    color: '#ff8589',
     fontSize: 14,
     fontWeight: '700',
   },
   successBox: {
     marginTop: 18,
-    backgroundColor: '#ecfdf3',
-    borderColor: '#a7f3d0',
+    backgroundColor: '#123524',
+    borderColor: '#286844',
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: APP_RADII.sm,
     padding: 12,
   },
   successTitle: {
-    color: '#065f46',
+    color: APP_COLORS.success,
     fontWeight: '700',
     marginBottom: 4,
   },
   successText: {
-    color: '#065f46',
+    color: '#b9f1cb',
   },
 });

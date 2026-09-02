@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import * as SplashScreen from 'expo-splash-screen';
-import { useState } from 'react';
-import { Dimensions, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AccessibilityInfo, Dimensions, StyleSheet, Text, View } from 'react-native';
 import Animated, { Easing, Keyframe } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -11,6 +11,11 @@ const DURATION = 600;
 export function AnimatedSplashOverlay() {
   const [animate, setAnimate] = useState(false);
   const [visible, setVisible] = useState(true);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+  }, []);
 
   if (!visible) return null;
 
@@ -50,11 +55,17 @@ export function AnimatedSplashOverlay() {
     <View
       onLayout={() => {
         SplashScreen.hideAsync().finally(() => {
-          setAnimate(true);
+          if (reduceMotion) {
+            setVisible(false);
+          } else {
+            setAnimate(true);
+          }
         });
       }}
       style={styles.splashOverlay}>
       {image}
+      <Text style={styles.splashTitle}>Disaster Response</Text>
+      <Text style={styles.splashTagline}>Emergency communication when connectivity fails.</Text>
     </View>
   );
 }
@@ -132,17 +143,29 @@ const styles = StyleSheet.create({
     height: 71,
   },
   background: {
+    backgroundColor: '#163b3b',
     borderRadius: 40,
-    experimental_backgroundImage: `linear-gradient(180deg, #3C9FFE, #0274DF)`,
     width: 128,
     height: 128,
     position: 'absolute',
   },
   splashOverlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: '#208AEF',
+    backgroundColor: '#0b1117',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1000,
+  },
+  splashTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '800',
+    marginTop: 18,
+  },
+  splashTagline: {
+    color: '#9aaab8',
+    fontSize: 13,
+    marginTop: 8,
+    textAlign: 'center',
   },
 });

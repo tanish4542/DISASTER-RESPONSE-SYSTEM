@@ -1,17 +1,13 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
 import { initializeEmergencyDatabase } from '@/storage/emergencyRepository';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   useEffect(() => {
     initializeEmergencyDatabase().catch(() => {
       // Ignore initialization failures at startup and keep the app usable.
@@ -19,9 +15,14 @@ export default function TabLayout() {
   }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={DarkTheme}>
       <AnimatedSplashOverlay />
-      <AppTabs />
+      <Stack screenOptions={{ headerStyle: { backgroundColor: '#131c24' }, headerTintColor: '#f4f7fa', headerTitleStyle: { fontWeight: '800' } }}>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="developer-tools" options={{ title: 'Developer Tools' }} />
+        <Stack.Screen name="ble-test" options={{ title: 'BLE Test' }} />
+        <Stack.Screen name="ble-native-peripheral" options={{ title: 'Phone B Peripheral' }} />
+      </Stack>
     </ThemeProvider>
   );
 }

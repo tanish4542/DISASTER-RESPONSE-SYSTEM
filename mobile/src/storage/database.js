@@ -1,19 +1,7 @@
 import { Platform } from 'react-native';
+import * as SQLite from 'expo-sqlite';
 
-let SQLite = null;
 let databaseInstance = null;
-
-function getSqliteModule() {
-  if (Platform.OS === 'web') {
-    return null;
-  }
-
-  if (!SQLite) {
-    SQLite = new Function('return require("expo-sqlite")')();
-  }
-
-  return SQLite;
-}
 
 export function initializeDatabase() {
   if (Platform.OS === 'web') {
@@ -25,13 +13,8 @@ export function initializeDatabase() {
   }
 
   try {
-    const sqliteModule = getSqliteModule();
-    if (!sqliteModule) {
-      return null;
-    }
-
-    databaseInstance = sqliteModule.openDatabaseSync('disaster_response_local.db');
-    databaseInstance.execSync(`
+    const database = SQLite.openDatabaseSync('disaster_response_local.db');
+    database.execSync(`
       CREATE TABLE IF NOT EXISTS emergencies (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         local_id TEXT UNIQUE NOT NULL,
@@ -50,10 +33,17 @@ export function initializeDatabase() {
         sync_status TEXT NOT NULL DEFAULT 'PENDING',
         created_at TEXT NOT NULL
       );
+
+      CREATE TABLE IF NOT EXISTS forwarded_emergencies (
+        emergency_id TEXT PRIMARY KEY NOT NULL,
+        forwarded_at TEXT NOT NULL
+      );
     `);
 
+    databaseInstance = database;
     return databaseInstance;
   } catch (error) {
+    databaseInstance = null;
     console.warn('Failed to initialize local emergency database:', error);
     throw error;
   }
