@@ -1,5 +1,6 @@
 import { BleManager } from 'react-native-ble-plx';
 import { PermissionsAndroid, Platform } from 'react-native';
+import { getPendingEmergencies } from '@/storage/emergencyRepository';
 
 export const BLE_CONFIG = {
   serviceUUID: '0000FFE0-0000-1000-8000-00805F9B34FB',
@@ -11,6 +12,11 @@ export const BLE_CONFIG = {
 
 let manager = new BleManager();
 let connectedDevice = null;
+let foregroundBleActive = false;
+let foregroundScanInProgress = false;
+let foregroundConnectionInProgress = false;
+let foregroundReconnectTimer = null;
+const emergencyTransmissions = new Map();
 const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 function encodeBase64(value) {
@@ -118,7 +124,7 @@ export function stopBleScan() {
   getBleManager().stopDeviceScan();
 }
 
-export async function connectToDevice(deviceId) {
+export async function connectToDevice(deviceId, options = {}) {
   if (!deviceId) {
     throw new Error('Device ID is required to connect.');
   }
@@ -143,12 +149,139 @@ export async function connectToDevice(deviceId) {
     if (connectedDevice === discoveredDevice) {
       connectedDevice = null;
     }
+    options.onDisconnected?.();
   });
   return connectedDevice;
 }
 
 export function getConnectedDevice() {
   return connectedDevice;
+}
+
+function buildEmergencySosPayload(emergency) {
+  return {
+    emergency_id: emergency.local_id,
+    message: emergency.message,
+    people_affected: emergency.people_affected,
+    injured: Boolean(emergency.injured),
+    trapped: Boolean(emergency.trapped),
+    fire: Boolean(emergency.fire),
+    medical_emergency: Boolean(emergency.medical_emergency),
+    urgency: emergency.urgency,
+    latitude: emergency.latitude ?? null,
+    longitude: emergency.longitude ?? null,
+  };
+}
+
+export async function sendEmergencyToRelay(emergency, device = getConnectedDevice()) {
+  const emergencyId = emergency?.local_id;
+  if (!emergencyId) {
+    return false;
+  }
+  if (emergencyTransmissions.has(emergencyId)) {
+    return emergencyTransmissions.get(emergencyId);
+  }
+
+  const transmission = (async () => {
+    try {
+      const deviceForWrite = typeof device.requestMTU === 'function'
+        ? await device.requestMTU(158)
+        : device;
+      await writeTestSosPayload(deviceForWrite, buildEmergencySosPayload(emergency));
+      return true;
+    } finally {
+      emergencyTransmissions.delete(emergencyId);
+    }
+  })();
+  emergencyTransmissions.set(emergencyId, transmission);
+  return transmission;
+}
+
+async function syncPendingEmergenciesToRelay() {
+  const pendingEmergencies = getPendingEmergencies();
+
+  for (const emergency of pendingEmergencies) {
+    if (!foregroundBleActive || !connectedDevice) {
+      return;
+    }
+
+    try {
+      await sendEmergencyToRelay(emergency);
+    } catch (error) {
+      console.warn('Pending SOS relay transmission failed:', error);
+    }
+  }
+}
+
+function scheduleForegroundBleScan() {
+  if (!foregroundBleActive || foregroundReconnectTimer) {
+    return;
+  }
+
+  foregroundReconnectTimer = setTimeout(() => {
+    foregroundReconnectTimer = null;
+    void scanForForegroundRelay();
+  }, 1000);
+}
+
+async function scanForForegroundRelay() {
+  if (!foregroundBleActive || connectedDevice || foregroundScanInProgress || foregroundConnectionInProgress) {
+    return;
+  }
+
+  foregroundScanInProgress = true;
+  try {
+    const scanStarted = await startBleScan((device) => {
+      if (!foregroundBleActive || connectedDevice || foregroundConnectionInProgress) {
+        return;
+      }
+
+      foregroundConnectionInProgress = true;
+      stopBleScan();
+      void connectToDevice(device.id, {
+        onDisconnected: () => {
+          scheduleForegroundBleScan();
+        },
+      })
+        .then(() => syncPendingEmergenciesToRelay())
+        .catch((error) => {
+          console.warn('Automatic BLE relay connection failed:', error);
+          scheduleForegroundBleScan();
+        })
+        .finally(() => {
+          foregroundConnectionInProgress = false;
+          if (!connectedDevice) {
+            scheduleForegroundBleScan();
+          }
+        });
+    });
+    if (!scanStarted) {
+      scheduleForegroundBleScan();
+    }
+  } catch (error) {
+    console.warn('Automatic BLE relay scan failed:', error);
+    scheduleForegroundBleScan();
+  } finally {
+    foregroundScanInProgress = false;
+  }
+}
+
+export function startForegroundBle() {
+  if (Platform.OS !== 'android' || foregroundBleActive) {
+    return;
+  }
+
+  foregroundBleActive = true;
+  void scanForForegroundRelay();
+}
+
+export function stopForegroundBle() {
+  foregroundBleActive = false;
+  stopBleScan();
+  if (foregroundReconnectTimer) {
+    clearTimeout(foregroundReconnectTimer);
+    foregroundReconnectTimer = null;
+  }
 }
 
 export async function resetBleManager() {

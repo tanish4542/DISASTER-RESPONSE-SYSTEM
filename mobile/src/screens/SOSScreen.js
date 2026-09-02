@@ -15,7 +15,7 @@ import { createEmergency } from '@/storage/emergencyRepository';
 import { syncEmergency, syncPendingEmergencies } from '@/services/syncService';
 import { getCurrentLocation } from '@/services/location';
 import { APP_COLORS, APP_RADII, APP_SPACING } from '@/constants/appTheme';
-import { getConnectedDevice, writeTestSosPayload } from '@/services/bleService';
+import { getConnectedDevice, sendEmergencyToRelay } from '@/services/bleService';
 
 const initialFormState = {
   message: '',
@@ -108,20 +108,7 @@ export default function SOSScreen() {
         setRelayStatus('Saved locally; no nearby relay is connected.');
       } else {
         try {
-          const deviceForWrite = await connectedDevice.requestMTU(158);
-          await writeTestSosPayload(deviceForWrite, {
-            emergency_id: localId,
-            message: emergencyPayload.message,
-            people_affected: emergencyPayload.people_affected,
-            injured: emergencyPayload.injured,
-            trapped: emergencyPayload.trapped,
-            fire: emergencyPayload.fire,
-            medical_emergency: emergencyPayload.medical_emergency,
-            urgency: emergencyPayload.urgency,
-            latitude: emergencyPayload.latitude,
-            longitude: emergencyPayload.longitude,
-          });
-          relaySent = true;
+          relaySent = await sendEmergencyToRelay(saved);
           setRelayStatus('SOS sent to nearby relay.');
         } catch (relayError) {
           console.warn('SOS relay transmission failed:', relayError);

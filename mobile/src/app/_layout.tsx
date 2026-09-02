@@ -1,9 +1,11 @@
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { AppState } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { initializeEmergencyDatabase } from '@/storage/emergencyRepository';
+import { startForegroundBle, stopForegroundBle } from '@/services/bleService';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -12,6 +14,22 @@ export default function TabLayout() {
     initializeEmergencyDatabase().catch(() => {
       // Ignore initialization failures at startup and keep the app usable.
     });
+  }, []);
+
+  useEffect(() => {
+    startForegroundBle();
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        startForegroundBle();
+      } else {
+        stopForegroundBle();
+      }
+    });
+
+    return () => {
+      appStateSubscription.remove();
+      stopForegroundBle();
+    };
   }, []);
 
   return (
