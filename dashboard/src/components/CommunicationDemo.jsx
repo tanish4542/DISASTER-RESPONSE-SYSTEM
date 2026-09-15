@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { runCommunicationSimulation } from '../services/communicationSimulation';
 
+const RELAY_CONCEPT = [
+  { label: 'Victim', note: 'SOS created' },
+  { label: 'BLE', note: 'Nearby hop' },
+  { label: 'Relay', note: 'Store-and-forward' },
+  { label: 'HTTP', note: 'When online' },
+  { label: 'Server', note: 'FastAPI' },
+  { label: 'Operations', note: 'This dashboard' },
+];
+
 export default function CommunicationDemo() {
   const [result, setResult] = useState(null);
 
@@ -8,7 +17,7 @@ export default function CommunicationDemo() {
     <section className="communication-panel" aria-label="Offline Communication Simulation">
       <div className="communication-header">
         <div>
-          <p className="eyebrow">Offline Network</p>
+          <p className="eyebrow">Offline network</p>
           <h2>Offline Communication Simulation</h2>
           <p className="communication-description">
             Software-only store-and-forward demonstration. No Bluetooth or Wi-Fi Direct is used.
@@ -18,6 +27,16 @@ export default function CommunicationDemo() {
           Run Simulation
         </button>
       </div>
+
+      <ol className="relay-concept">
+        {RELAY_CONCEPT.map((hop, index) => (
+          <li key={hop.label}>
+            <strong>{hop.label}</strong>
+            <span>{hop.note}</span>
+            {index < RELAY_CONCEPT.length - 1 ? <b aria-hidden="true">↓</b> : null}
+          </li>
+        ))}
+      </ol>
 
       {result ? (
         <>

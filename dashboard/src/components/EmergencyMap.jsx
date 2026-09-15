@@ -8,10 +8,10 @@ import {
 } from 'react-leaflet';
 
 const PRIORITY_COLORS = {
-  CRITICAL: '#b91c1c',
-  HIGH: '#ea580c',
-  MEDIUM: '#d97706',
-  LOW: '#15803d',
+  CRITICAL: '#ef4444',
+  HIGH: '#f97316',
+  MEDIUM: '#f59e0b',
+  LOW: '#38bdf8',
 };
 
 function isValidCoordinate(value, minimum, maximum) {
@@ -50,10 +50,20 @@ export default function EmergencyMap({ emergencies, onSelectEmergency }) {
     <section className="map-panel" aria-label="Emergency locations map">
       <div className="map-heading">
         <div>
-          <p className="eyebrow">Live Locations</p>
-          <h2>Emergency map</h2>
+          <p className="eyebrow">Live locations</p>
+          <h2>Incident map</h2>
         </div>
-        <span className="map-count">{mappedEmergencies.length} mapped</span>
+        <div className="map-heading-meta">
+          <span className="map-count">{mappedEmergencies.length} mapped</span>
+          <ul className="map-legend">
+            {Object.entries(PRIORITY_COLORS).map(([level, color]) => (
+              <li key={level}>
+                <i style={{ background: color }} />
+                {level}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
       <div className="map-wrapper">
         <MapContainer center={[20, 0]} zoom={2} scrollWheelZoom className="emergency-map">
