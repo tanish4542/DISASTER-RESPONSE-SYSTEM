@@ -1,0 +1,113 @@
+{
+  "dataset": "ml/data/experimental/rescue_priority_pilot.csv",
+  "total_examples": 4000,
+  "class_distribution": {
+    "CRITICAL": 1000,
+    "HIGH": 1000,
+    "LOW": 1000,
+    "MEDIUM": 1000
+  },
+  "disaster_type_distribution": {
+    "biological": 300,
+    "earthquake": 600,
+    "flood": 400,
+    "hurricane": 400,
+    "industrial": 400,
+    "other": 700,
+    "societal": 200,
+    "tornado": 200,
+    "transportation": 400,
+    "wildfire": 400
+  },
+  "source_type_distribution": {
+    "controlled_synthetic": 4000
+  },
+  "language_distribution": {
+    "en": 4000
+  },
+  "structured_field_distribution": {
+    "injured": {
+      "0": 3000,
+      "1": 1000
+    },
+    "trapped": {
+      "0": 3500,
+      "1": 500
+    },
+    "fire": {
+      "0": 3400,
+      "1": 600
+    },
+    "medical_emergency": {
+      "0": 2800,
+      "1": 1200
+    }
+  },
+  "people_affected_distribution": {
+    "0": 700,
+    "1": 700,
+    "11": 100,
+    "12": 200,
+    "14": 100,
+    "16": 100,
+    "18": 100,
+    "2": 400,
+    "20": 200,
+    "30": 100,
+    "35": 100,
+    "4": 200,
+    "5": 100,
+    "6": 200,
+    "7": 200,
+    "8": 300,
+    "9": 200
+  },
+  "event_group_counts": {
+    "train": 28,
+    "validation": 4,
+    "test": 8
+  },
+  "event_group_total": 40,
+  "duplicate_checks": {
+    "exact_normalized_duplicate_rows": 0,
+    "cross_split_exact_normalized_duplicates": 0,
+    "near_duplicate_policy": "Variants from one event group are intentionally similar and never cross splits.",
+    "cross_split_near_duplicate_threshold": 0.88,
+    "cross_split_near_duplicate_pairs": []
+  },
+  "split_counts": {
+    "train": {
+      "CRITICAL": 700,
+      "HIGH": 700,
+      "LOW": 700,
+      "MEDIUM": 700
+    },
+    "validation": {
+      "CRITICAL": 100,
+      "HIGH": 100,
+      "LOW": 100,
+      "MEDIUM": 100
+    },
+    "test": {
+      "CRITICAL": 200,
+      "HIGH": 200,
+      "LOW": 200,
+      "MEDIUM": 200
+    }
+  },
+  "split_percentages": {
+    "train": 0.7,
+    "validation": 0.15,
+    "test": 0.15
+  },
+  "boundary_example_counts": {
+    "LOW_MEDIUM": 400,
+    "MEDIUM_HIGH": 400,
+    "HIGH_CRITICAL": 500
+  },
+  "quality_notes": [
+    "All rows are controlled synthetic pilot examples; they are not claimed to be real-world ground truth.",
+    "Each event_id contains one scenario family and all its wording variants.",
+    "No model training or production artifact replacement is performed by this phase."
+  ]
+}

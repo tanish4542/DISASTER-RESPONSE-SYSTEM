@@ -1,0 +1,309 @@
+{
+  "dataset": "ml/data/experimental/rescue_priority_v2.csv",
+  "total_rows": 960,
+  "class_distribution": {
+    "CRITICAL": 240,
+    "HIGH": 240,
+    "LOW": 240,
+    "MEDIUM": 240
+  },
+  "independent_event_groups": 120,
+  "disaster_type_by_priority": {
+    "biological": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "earthquake": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "flood": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "hurricane": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "industrial": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "other": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "societal": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "tornado": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "transportation": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    },
+    "wildfire": {
+      "CRITICAL": 24,
+      "HIGH": 24,
+      "LOW": 24,
+      "MEDIUM": 24
+    }
+  },
+  "split_distribution": {
+    "train": {
+      "CRITICAL": 168,
+      "HIGH": 168,
+      "LOW": 168,
+      "MEDIUM": 168
+    },
+    "validation": {
+      "CRITICAL": 32,
+      "HIGH": 32,
+      "LOW": 32,
+      "MEDIUM": 32
+    },
+    "test": {
+      "CRITICAL": 40,
+      "HIGH": 40,
+      "LOW": 40,
+      "MEDIUM": 40
+    }
+  },
+  "split_group_counts": {
+    "train": 84,
+    "validation": 16,
+    "test": 20
+  },
+  "split_group_overlap": {
+    "train_validation": 0,
+    "train_test": 0,
+    "validation_test": 0
+  },
+  "exact_duplicates": {
+    "normalized_duplicate_rows": 0,
+    "cross_split_duplicates": 0
+  },
+  "near_duplicates": {
+    "threshold": 0.88,
+    "cross_split_group_pairs": 0,
+    "pairs": []
+  },
+  "keyword_distribution_by_class": {
+    "trapped": {
+      "occurrences": 96,
+      "by_class": {
+        "CRITICAL": 80,
+        "MEDIUM": 16
+      }
+    },
+    "fire": {
+      "occurrences": 80,
+      "by_class": {
+        "MEDIUM": 16,
+        "CRITICAL": 24,
+        "HIGH": 24,
+        "LOW": 16
+      }
+    },
+    "injured": {
+      "occurrences": 40,
+      "by_class": {
+        "MEDIUM": 8,
+        "CRITICAL": 32
+      }
+    },
+    "rescue": {
+      "occurrences": 120,
+      "by_class": {
+        "CRITICAL": 104,
+        "MEDIUM": 8,
+        "LOW": 8
+      }
+    },
+    "evacuation": {
+      "occurrences": 80,
+      "by_class": {
+        "HIGH": 56,
+        "LOW": 24
+      }
+    },
+    "immediate": {
+      "occurrences": 120,
+      "by_class": {
+        "CRITICAL": 96,
+        "MEDIUM": 24
+      }
+    },
+    "safe": {
+      "occurrences": 152,
+      "by_class": {
+        "LOW": 88,
+        "MEDIUM": 40,
+        "HIGH": 24
+      }
+    }
+  },
+  "structured_field_distribution_by_class": {
+    "injured": {
+      "CRITICAL": {
+        "1": 160,
+        "0": 80
+      },
+      "HIGH": {
+        "0": 168,
+        "1": 72
+      },
+      "MEDIUM": {
+        "0": 216,
+        "1": 24
+      },
+      "LOW": {
+        "0": 240
+      }
+    },
+    "trapped": {
+      "CRITICAL": {
+        "0": 136,
+        "1": 104
+      },
+      "HIGH": {
+        "0": 240
+      },
+      "MEDIUM": {
+        "0": 240
+      },
+      "LOW": {
+        "0": 240
+      }
+    },
+    "fire": {
+      "CRITICAL": {
+        "0": 192,
+        "1": 48
+      },
+      "HIGH": {
+        "0": 208,
+        "1": 32
+      },
+      "MEDIUM": {
+        "1": 16,
+        "0": 224
+      },
+      "LOW": {
+        "0": 232,
+        "1": 8
+      }
+    },
+    "medical_emergency": {
+      "CRITICAL": {
+        "1": 160,
+        "0": 80
+      },
+      "HIGH": {
+        "0": 144,
+        "1": 96
+      },
+      "MEDIUM": {
+        "0": 192,
+        "1": 48
+      },
+      "LOW": {
+        "0": 240
+      }
+    },
+    "people_affected": {
+      "CRITICAL": {
+        "1": 72,
+        "7": 32,
+        "8": 16,
+        "6": 32,
+        "4": 8,
+        "5": 16,
+        "9": 16,
+        "10": 8,
+        "14": 8,
+        "12": 16,
+        "3": 8,
+        "2": 8
+      },
+      "HIGH": {
+        "15": 8,
+        "30": 8,
+        "35": 8,
+        "1": 32,
+        "50": 8,
+        "8": 8,
+        "25": 16,
+        "18": 24,
+        "12": 24,
+        "14": 8,
+        "6": 24,
+        "4": 8,
+        "20": 24,
+        "9": 8,
+        "40": 16,
+        "22": 8,
+        "3": 8
+      },
+      "MEDIUM": {
+        "2": 24,
+        "4": 40,
+        "40": 8,
+        "10": 16,
+        "8": 32,
+        "30": 16,
+        "3": 24,
+        "16": 8,
+        "15": 16,
+        "20": 16,
+        "1": 24,
+        "25": 8,
+        "5": 8
+      },
+      "LOW": {
+        "0": 144,
+        "1": 24,
+        "25": 8,
+        "12": 8,
+        "20": 8,
+        "40": 8,
+        "2": 16,
+        "15": 8,
+        "100": 8,
+        "30": 8
+      }
+    }
+  },
+  "source_type_distribution": {
+    "controlled_synthetic_v2": 960
+  },
+  "language_distribution": {
+    "en": 960
+  },
+  "notes": [
+    "V2 uses 120 independent groups: 10 disaster types \u00d7 4 priorities \u00d7 3 scenario families.",
+    "All rows are controlled synthetic examples and are not real-world ground truth.",
+    "No model training or production artifact replacement is performed."
+  ]
+}

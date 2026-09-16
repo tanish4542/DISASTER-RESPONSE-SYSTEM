@@ -7,51 +7,34 @@ from app.database import get_db
 from app.models.emergency import Emergency
 from app.schemas.emergency import EmergencyCreate, EmergencyUpdate, EmergencyResponse
 from app.services.priority import calculate_priority
-from app.services.nlp_service import analyze_message
+from app.services.nlp_service import analyze_message, has_safety_evidence
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["emergencies"])
+PRIORITY_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+
+
+def _highest_priority(left: str, right: str) -> str:
+    return left if PRIORITY_ORDER[left] >= PRIORITY_ORDER[right] else right
 
 
 def populate_missing_ai_analysis(emergencies, db):
-    changed = False
-    for emergency in emergencies:
-        if emergency.ai_relevant is not None and emergency.ai_urgency is not None:
-            continue
-
-        try:
-            ai_results = analyze_message(emergency.message)
-        except Exception:
-            logger.exception("NLP analysis failed while loading emergency %s", emergency.id)
-            continue
-
-        for field, value in ai_results.items():
-            setattr(emergency, field, value)
-        changed = True
-
-    if changed:
-        db.commit()
-        for emergency in emergencies:
-            db.refresh(emergency)
-
+    # Existing records are only analyzed through the explicit reanalysis action.
     return emergencies
 
 @router.post("/emergencies", response_model=EmergencyResponse, status_code=201)
 def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_db)):
-    priority_score, priority_level = calculate_priority(
-        urgency=emergency_data.urgency,
-        people_affected=emergency_data.people_affected,
-        injured=emergency_data.injured,
-        trapped=emergency_data.trapped,
-        fire=emergency_data.fire,
-        medical_emergency=emergency_data.medical_emergency,
-    )
     ai_results = {
         "ai_relevant": None,
         "ai_relevance_confidence": None,
         "ai_urgency": None,
         "ai_urgency_confidence": None,
+        "ai_priority": None,
+        "ai_priority_confidence": None,
+        "priority_classification_source": None,
+        "priority_classification_review_required": None,
+        "ai_priority_reason": None,
         "ai_disaster_type": None,
         "ai_disaster_type_confidence": None,
         "operational_category": None,
@@ -60,10 +43,63 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
         "ai_classification_reason": None,
     }
     try:
-        ai_results = analyze_message(emergency_data.message)
+        ai_results = analyze_message(
+            emergency_data.message,
+            injured=emergency_data.injured,
+            trapped=emergency_data.trapped,
+            fire=emergency_data.fire,
+            medical_emergency=emergency_data.medical_emergency,
+        )
     except Exception:
         logger.exception("NLP analysis failed; storing emergency without AI fields")
 
+    no_structured_safety_evidence = not any((
+        emergency_data.injured,
+        emergency_data.trapped,
+        emergency_data.fire,
+        emergency_data.medical_emergency,
+    ))
+    if ai_results.get("ai_relevant") is False and no_structured_safety_evidence:
+        ai_results.update({
+            "ai_urgency": None,
+            "ai_urgency_confidence": None,
+            "ai_priority": None,
+            "ai_priority_confidence": None,
+            "priority_classification_source": "NOT_RELEVANT",
+            "priority_classification_review_required": False,
+            "ai_priority_reason": "The relevance model classified this message as not relevant; no explicit structured emergency indicators were supplied.",
+            "ai_disaster_type": None,
+            "ai_disaster_type_confidence": None,
+            "operational_category": None,
+            "classification_source": "NOT_RELEVANT",
+            "classification_review_required": False,
+            "ai_classification_reason": "The relevance model classified this message as not relevant; no explicit structured emergency indicators were supplied.",
+        })
+        priority_score, priority_level = 0, "LOW"
+    else:
+        classification_processed = ai_results.get("classification_source") in {"AI", "MANUAL_REVIEW", "MANUAL"}
+        if classification_processed or has_safety_evidence(
+            emergency_data.message,
+            injured=emergency_data.injured,
+            trapped=emergency_data.trapped,
+            fire=emergency_data.fire,
+            medical_emergency=emergency_data.medical_emergency,
+        ):
+            priority_score, priority_level = calculate_priority(
+                urgency=emergency_data.urgency,
+                people_affected=emergency_data.people_affected,
+                injured=emergency_data.injured,
+                trapped=emergency_data.trapped,
+                fire=emergency_data.fire,
+                medical_emergency=emergency_data.medical_emergency,
+            )
+        else:
+            priority_score, priority_level = 0, "LOW"
+        if (
+            ai_results.get("ai_priority")
+            and ai_results.get("priority_classification_source") == "AI"
+        ):
+            priority_level = _highest_priority(priority_level, ai_results["ai_priority"])
     db_emergency = Emergency(
         message=emergency_data.message,
         latitude=emergency_data.latitude,
@@ -116,11 +152,66 @@ def update_emergency_status(emergency_id: int, update_data: EmergencyUpdate, db:
         emergency.operational_category = update_data.operational_category
         emergency.classification_source = "MANUAL"
         emergency.classification_review_required = False
+    if update_data.manual_priority is not None:
+        emergency.priority_level = update_data.manual_priority
+        emergency.priority_classification_source = "MANUAL"
+        emergency.priority_classification_review_required = False
     if update_data.message is not None:
         emergency.message = update_data.message
     db.commit()
     db.refresh(emergency)
     return emergency
+
+@router.post("/emergencies/reanalyze", response_model=List[EmergencyResponse])
+def reanalyze_legacy_emergencies(db: Session = Depends(get_db)):
+    """Re-run the persisted NLP pipeline only for records missing AI analysis."""
+    records = db.query(Emergency).filter(
+        Emergency.priority_classification_source.is_(None),
+    ).all()
+    for emergency in records:
+        try:
+            results = analyze_message(
+                emergency.message,
+                injured=emergency.injured,
+                trapped=emergency.trapped,
+                fire=emergency.fire,
+                medical_emergency=emergency.medical_emergency,
+            )
+        except Exception:
+            logger.exception("NLP reanalysis failed for emergency %s", emergency.id)
+            continue
+        for field, value in results.items():
+            setattr(emergency, field, value)
+        classification_processed = results.get("classification_source") in {"AI", "MANUAL_REVIEW", "MANUAL"}
+        if classification_processed or has_safety_evidence(
+            emergency.message,
+            injured=emergency.injured,
+            trapped=emergency.trapped,
+            fire=emergency.fire,
+            medical_emergency=emergency.medical_emergency,
+        ):
+            emergency.priority_score, emergency.priority_level = calculate_priority(
+                urgency=emergency.urgency,
+                people_affected=emergency.people_affected,
+                injured=emergency.injured,
+                trapped=emergency.trapped,
+                fire=emergency.fire,
+                medical_emergency=emergency.medical_emergency,
+            )
+        else:
+            emergency.priority_score, emergency.priority_level = 0, "LOW"
+        if (
+            results.get("ai_priority")
+            and results.get("priority_classification_source") == "AI"
+        ):
+            emergency.priority_level = _highest_priority(
+                emergency.priority_level,
+                results["ai_priority"],
+            )
+    db.commit()
+    for emergency in records:
+        db.refresh(emergency)
+    return records
 
 @router.delete("/emergencies/{emergency_id}", status_code=204)
 def delete_emergency(emergency_id: int, db: Session = Depends(get_db)):

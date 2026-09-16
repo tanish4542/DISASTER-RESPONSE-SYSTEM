@@ -1,0 +1,358 @@
+{
+  "dataset": "ml/data/experimental/rescue_priority_pilot.csv",
+  "total_examples": 4000,
+  "class_distribution": {
+    "CRITICAL": 1000,
+    "HIGH": 1000,
+    "LOW": 1000,
+    "MEDIUM": 1000
+  },
+  "all_required_classes_present": true,
+  "split_distribution": {
+    "train": {
+      "CRITICAL": 700,
+      "HIGH": 700,
+      "LOW": 700,
+      "MEDIUM": 700
+    },
+    "validation": {
+      "CRITICAL": 100,
+      "HIGH": 100,
+      "LOW": 100,
+      "MEDIUM": 100
+    },
+    "test": {
+      "CRITICAL": 200,
+      "HIGH": 200,
+      "LOW": 200,
+      "MEDIUM": 200
+    }
+  },
+  "every_class_in_each_split": true,
+  "split_group_counts": {
+    "train": 28,
+    "validation": 4,
+    "test": 8
+  },
+  "split_group_overlap": {
+    "train_validation": 0,
+    "train_test": 0,
+    "validation_test": 0
+  },
+  "message_label_consistency": {
+    "suspicious_count": 0,
+    "suspicious_examples": []
+  },
+  "boundary_quality": {
+    "boundary_ambiguity_count": 0,
+    "boundary_review_note": "Synthetic boundary families are represented, but human adjudication is still required before treating labels as ground truth.",
+    "sample_examples": {
+      "LOW_MEDIUM": [
+        {
+          "id": "rp-03567",
+          "label": "LOW",
+          "message": "there is a small crack in an empty building; no response is needed at the apartment block after the storm; one person is accounted for. A resident reports; the status should be reviewed. This is the latest update.",
+          "event_id": "low_earthquake_minor_damage"
+        },
+        {
+          "id": "rp-02111",
+          "label": "MEDIUM",
+          "message": "an earthquake caused moderate damage to a room, but everyone is safe near the riverside this morning; two people are accounted for. The caller reports; responders should use this information. We are requesting responders.",
+          "event_id": "medium_earthquake_moderate_damage"
+        },
+        {
+          "id": "rp-03431",
+          "label": "LOW",
+          "message": "I need to report that a small amount of water is on the road, everyone is safe on the main road over the last hour; a family is accounted for. The current report says; responders should use this information.",
+          "event_id": "low_flood_minor_flood"
+        },
+        {
+          "id": "rp-03579",
+          "label": "LOW",
+          "message": "there is a small crack in an empty building; no response is needed on the main road after the storm; workers are accounted for. The response log records; the information is ready for triage. We are requesting responders.",
+          "event_id": "low_earthquake_minor_damage"
+        },
+        {
+          "id": "rp-03415",
+          "label": "LOW",
+          "message": "Please help: a small amount of water is on the road, everyone is safe beside the market this morning; one person is accounted for. The caller reports; the caller has provided this update. This is the latest update.",
+          "event_id": "low_flood_minor_flood"
+        },
+        {
+          "id": "rp-02003",
+          "label": "MEDIUM",
+          "message": "Our situation is this: floodwater has entered the yard and we need basic assistance by the school over the last hour; one person is accounted for. According to the latest update; the team is waiting for guidance.",
+          "event_id": "medium_flood_localized_flood"
+        }
+      ],
+      "MEDIUM_HIGH": [
+        {
+          "id": "rp-01244",
+          "label": "HIGH",
+          "message": "Dispatch message: the earthquake badly damaged a building and occupants must evacuate beside the market a few minutes ago; a family is accounted for. From the latest field note; this message is being shared with dispatch. Please record this situation.",
+          "event_id": "high_earthquake_structural_damage"
+        },
+        {
+          "id": "rp-01099",
+          "label": "HIGH",
+          "message": "Our situation is this: rising floodwater is entering several homes and residents need evacuation in the north neighborhood over the last hour; two people are accounted for. The latest check confirms; the information is ready for triage. We are requesting responders.",
+          "event_id": "high_flood_evacuation"
+        },
+        {
+          "id": "rp-01096",
+          "label": "HIGH",
+          "message": "rising floodwater is entering several homes and residents need evacuation by the school this morning; two people are accounted for. The latest check confirms; the operations desk has been notified. Please send the appropriate response.",
+          "event_id": "high_flood_evacuation"
+        },
+        {
+          "id": "rp-01449",
+          "label": "HIGH",
+          "message": "I need to report that hurricane damage has made several homes unsafe and families need assistance by the school this morning; workers are accounted for. From the latest field note; the information is ready for triage. Please send the appropriate response.",
+          "event_id": "high_hurricane_storm_damage"
+        },
+        {
+          "id": "rp-01380",
+          "label": "HIGH",
+          "message": "I need to report that fire damaged part of the building; everyone evacuated safely but support is needed in the north neighborhood during the night; one person is accounted for. The response log records; the message is complete. We are requesting responders.",
+          "event_id": "high_industrial_dangerous_fire"
+        },
+        {
+          "id": "rp-01298",
+          "label": "HIGH",
+          "message": "Dispatch message: the earthquake badly damaged a building and occupants must evacuate near the community center during the night; two people are accounted for. The latest check confirms; this is the current field description. We are requesting responders.",
+          "event_id": "high_earthquake_structural_damage"
+        }
+      ],
+      "HIGH_CRITICAL": [
+        {
+          "id": "rp-01623",
+          "label": "HIGH",
+          "message": "I need to report that a bus crash caused serious injuries; everyone is conscious and responders are needed beside the market a few minutes ago; a family is accounted for. In a follow-up message; the team is waiting for guidance. Please send the appropriate response.",
+          "event_id": "high_transportation_transport_crash"
+        },
+        {
+          "id": "rp-00350",
+          "label": "CRITICAL",
+          "message": "I need to report that an active fire has people trapped inside the building beside the market during the night; several residents are accounted for. From the latest field note; the message is complete. We are requesting responders.",
+          "event_id": "critical_industrial_fire_trapped"
+        },
+        {
+          "id": "rp-01688",
+          "label": "HIGH",
+          "message": "Dispatch message: a bus crash caused serious injuries; everyone is conscious and responders are needed near the riverside over the last hour; two people are accounted for. The dispatch note says; this is the current field description. Please send the appropriate response.",
+          "event_id": "high_transportation_transport_crash"
+        },
+        {
+          "id": "rp-00402",
+          "label": "CRITICAL",
+          "message": "rapidly rising floodwater has trapped a family and they cannot escape beside the market after the storm; workers are accounted for. According to the latest update; the report has been logged. We are requesting responders.",
+          "event_id": "critical_flood_flood_trapped"
+        },
+        {
+          "id": "rp-01601",
+          "label": "HIGH",
+          "message": "Please help: a bus crash caused serious injuries; everyone is conscious and responders are needed near the riverside during the night; workers are accounted for. According to the latest update; responders should use this information. We are requesting responders.",
+          "event_id": "high_transportation_transport_crash"
+        },
+        {
+          "id": "rp-00493",
+          "label": "CRITICAL",
+          "message": "Please help: rapidly rising floodwater has trapped a family and they cannot escape near the community center this morning; one person is accounted for. The latest check confirms; the team is waiting for guidance. Please record this situation.",
+          "event_id": "critical_flood_flood_trapped"
+        }
+      ]
+    }
+  },
+  "structured_field_consistency": {
+    "field_distribution": {
+      "injured": {
+        "0": 3000,
+        "1": 1000
+      },
+      "trapped": {
+        "0": 3500,
+        "1": 500
+      },
+      "fire": {
+        "0": 3400,
+        "1": 600
+      },
+      "medical_emergency": {
+        "0": 2800,
+        "1": 1200
+      },
+      "people_affected": {
+        "0": 700,
+        "1": 700,
+        "11": 100,
+        "12": 200,
+        "14": 100,
+        "16": 100,
+        "18": 100,
+        "2": 400,
+        "20": 200,
+        "30": 100,
+        "35": 100,
+        "4": 200,
+        "5": 100,
+        "6": 200,
+        "7": 200,
+        "8": 300,
+        "9": 200
+      }
+    },
+    "inconsistency_count": 0,
+    "inconsistencies": []
+  },
+  "duplicate_analysis": {
+    "exact_normalized_duplicate_rows": 0,
+    "cross_split_exact_normalized_duplicates": 0,
+    "cross_split_near_duplicate_threshold": 0.88,
+    "cross_split_near_duplicate_count": 0,
+    "cross_split_near_duplicates": []
+  },
+  "disaster_type_distribution": {
+    "overall": {
+      "biological": 300,
+      "earthquake": 600,
+      "flood": 400,
+      "hurricane": 400,
+      "industrial": 400,
+      "other": 700,
+      "societal": 200,
+      "tornado": 200,
+      "transportation": 400,
+      "wildfire": 400
+    },
+    "by_split": {
+      "train": {
+        "biological": 100,
+        "earthquake": 500,
+        "flood": 400,
+        "hurricane": 200,
+        "industrial": 300,
+        "other": 400,
+        "societal": 100,
+        "tornado": 200,
+        "transportation": 300,
+        "wildfire": 300
+      },
+      "validation": {
+        "biological": 100,
+        "hurricane": 100,
+        "industrial": 100,
+        "other": 100
+      },
+      "test": {
+        "biological": 100,
+        "earthquake": 100,
+        "hurricane": 100,
+        "other": 200,
+        "societal": 100,
+        "transportation": 100,
+        "wildfire": 100
+      }
+    },
+    "all_required_types_present": true
+  },
+  "keyword_leakage": {
+    "keyword_occurrence_findings": {
+      "trapped": {
+        "occurrences": 600,
+        "class_counts": {
+          "CRITICAL": 500,
+          "MEDIUM": 100
+        },
+        "dominant_class_fraction": 0.8333333333333334
+      },
+      "fire": {
+        "occurrences": 500,
+        "class_counts": {
+          "LOW": 200,
+          "CRITICAL": 100,
+          "MEDIUM": 100,
+          "HIGH": 100
+        },
+        "dominant_class_fraction": 0.4
+      },
+      "injured": {
+        "occurrences": 200,
+        "class_counts": {
+          "CRITICAL": 200
+        },
+        "dominant_class_fraction": 1.0
+      },
+      "safe": {
+        "occurrences": 600,
+        "class_counts": {
+          "LOW": 200,
+          "HIGH": 200,
+          "MEDIUM": 200
+        },
+        "dominant_class_fraction": 0.3333333333333333
+      },
+      "evacuat": {
+        "occurrences": 600,
+        "class_counts": {
+          "HIGH": 500,
+          "LOW": 100
+        },
+        "dominant_class_fraction": 0.8333333333333334
+      },
+      "unconscious": {
+        "occurrences": 200,
+        "class_counts": {
+          "CRITICAL": 200
+        },
+        "dominant_class_fraction": 1.0
+      },
+      "bleeding": {
+        "occurrences": 100,
+        "class_counts": {
+          "CRITICAL": 100
+        },
+        "dominant_class_fraction": 1.0
+      },
+      "collapsed": {
+        "occurrences": 200,
+        "class_counts": {
+          "CRITICAL": 200
+        },
+        "dominant_class_fraction": 1.0
+      },
+      "flood": {
+        "occurrences": 300,
+        "class_counts": {
+          "HIGH": 100,
+          "CRITICAL": 100,
+          "MEDIUM": 100
+        },
+        "dominant_class_fraction": 0.3333333333333333
+      },
+      "rescue": {
+        "occurrences": 314,
+        "class_counts": {
+          "CRITICAL": 314
+        },
+        "dominant_class_fraction": 1.0
+      },
+      "immediate": {
+        "occurrences": 314,
+        "class_counts": {
+          "CRITICAL": 314
+        },
+        "dominant_class_fraction": 1.0
+      }
+    },
+    "finding": "Several terms are intentionally associated with urgency concepts, but contextual negatives and cross-class usage must be expanded before production training.",
+    "status": "REQUIRES_REVIEW"
+  },
+  "overall_dataset_quality": {
+    "status": "PILOT_ONLY_NOT_READY_FOR_MODEL_TRAINING",
+    "reasons": [
+      "All examples are controlled synthetic rather than independently human-annotated.",
+      "Generated variants within each event group are highly related, so effective independent sample size is the group count.",
+      "Keyword leakage and template memorization require a stronger human-authored and adjudicated benchmark."
+    ]
+  }
+}

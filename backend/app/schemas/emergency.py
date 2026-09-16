@@ -28,6 +28,7 @@ class EmergencyUpdate(BaseModel):
         "INFRASTRUCTURE / TRANSPORT",
         "OTHER",
     ]] = None
+    manual_priority: Optional[Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]] = None
     message: Optional[str] = Field(None, min_length=1, max_length=500)
     
     @field_validator('message')
@@ -53,6 +54,13 @@ class EmergencyResponse(BaseModel):
     ai_relevance_confidence: Optional[float] = None
     ai_urgency: Optional[str] = None
     ai_urgency_confidence: Optional[float] = None
+    ai_priority: Optional[Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]] = None
+    ai_priority_confidence: Optional[float] = None
+    priority_classification_source: Optional[Literal[
+        "AI", "MANUAL_REVIEW", "MANUAL", "NOT_RELEVANT", "LOW_RELEVANCE_CONFIDENCE"
+    ]] = None
+    priority_classification_review_required: Optional[bool] = None
+    ai_priority_reason: Optional[str] = None
     ai_disaster_type: Optional[str] = None
     ai_disaster_type_confidence: Optional[float] = None
     operational_category: Optional[Literal[
@@ -61,7 +69,13 @@ class EmergencyResponse(BaseModel):
         "INFRASTRUCTURE / TRANSPORT",
         "OTHER",
     ]] = None
-    classification_source: Optional[Literal["AI", "MANUAL_REVIEW", "MANUAL"]] = None
+    classification_source: Optional[Literal[
+        "AI",
+        "MANUAL_REVIEW",
+        "MANUAL",
+        "NOT_RELEVANT",
+        "LOW_RELEVANCE_CONFIDENCE",
+    ]] = None
     classification_review_required: Optional[bool] = None
     ai_classification_reason: Optional[str] = None
     status: Literal["PENDING", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED"]

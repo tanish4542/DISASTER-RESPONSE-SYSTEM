@@ -21,6 +21,9 @@ _CRITICAL_RE = re.compile(
     re.IGNORECASE,
 )
 
+def contains_strong_emergency_indicator(text: Any) -> bool:
+    return bool(_CRITICAL_RE.search(normalize_text(text)))
+
 
 class UrgencyClassifier:
     def __init__(self, model_path: str | Path):
@@ -36,7 +39,7 @@ class UrgencyClassifier:
         scores = raw if len(raw) == len(classes) else np.asarray([raw[0], 0.0, -raw[0]])
         shifted = scores - scores.max()
         confidence = float(np.exp(shifted).max() / np.exp(shifted).sum())
-        overridden = bool(_CRITICAL_RE.search(normalized))
+        overridden = contains_strong_emergency_indicator(normalized)
         final = "CRITICAL" if overridden else predicted
         return {
             "urgency": final,

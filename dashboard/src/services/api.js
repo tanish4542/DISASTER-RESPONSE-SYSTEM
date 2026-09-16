@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://172.20.10.8:8000';
 
 async function parseJson(response) {
   const text = await response.text();
@@ -33,8 +33,13 @@ async function request(path, options = {}) {
   return data;
 }
 
-export async function getEmergencies() {
-  return request('/api/emergencies');
+export async function getEmergencies(status) {
+  const query = status ? `?status=${encodeURIComponent(status)}` : '';
+  return request(`/api/emergencies${query}`);
+}
+
+export async function getEmergency(id) {
+  return request(`/api/emergencies/${id}`);
 }
 
 export async function updateEmergencyStatus(id, status) {
@@ -48,5 +53,12 @@ export async function updateEmergencyCategory(id, operational_category) {
   return request(`/api/emergencies/${id}/status`, {
     method: 'PATCH',
     body: JSON.stringify({ operational_category }),
+  });
+}
+
+export async function updateEmergencyPriority(id, manual_priority) {
+  return request(`/api/emergencies/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ manual_priority }),
   });
 }

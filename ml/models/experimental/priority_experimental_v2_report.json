@@ -1,0 +1,237 @@
+{
+  "dataset": "ml/data/experimental/rescue_priority_v2.csv",
+  "model": "TF-IDF word n-grams (1,2) + balanced LinearSVC",
+  "classes": [
+    "CRITICAL",
+    "HIGH",
+    "MEDIUM",
+    "LOW"
+  ],
+  "train_rows": 672,
+  "validation_rows": 128,
+  "test_rows": 160,
+  "event_groups": {
+    "train": 84,
+    "validation": 16,
+    "test": 20
+  },
+  "confidence_method": "softmax-normalized LinearSVC decision score; non-calibrated confidence, not probability",
+  "validation": {
+    "split": "validation",
+    "rows": 128,
+    "accuracy": 0.9609375,
+    "macro_precision": 0.9646464646464646,
+    "macro_recall": 0.9609375,
+    "macro_f1": 0.9608130431659843,
+    "weighted_f1": 0.9608130431659843,
+    "per_class": {
+      "CRITICAL": {
+        "precision": 0.9696969696969697,
+        "recall": 1.0,
+        "f1": 0.9846153846153847,
+        "support": 32
+      },
+      "HIGH": {
+        "precision": 1.0,
+        "recall": 0.875,
+        "f1": 0.9333333333333333,
+        "support": 32
+      },
+      "MEDIUM": {
+        "precision": 1.0,
+        "recall": 0.96875,
+        "f1": 0.9841269841269841,
+        "support": 32
+      },
+      "LOW": {
+        "precision": 0.8888888888888888,
+        "recall": 1.0,
+        "f1": 0.9411764705882353,
+        "support": 32
+      }
+    },
+    "confusion_matrix": [
+      [
+        32,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        28,
+        0,
+        4
+      ],
+      [
+        1,
+        0,
+        31,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        32
+      ]
+    ],
+    "labels": [
+      "CRITICAL",
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ],
+    "critical_to_low_errors": 0,
+    "critical_to_low_error_rate": 0.0,
+    "high_to_low_errors": 4,
+    "high_to_low_error_rate": 0.125
+  },
+  "test": {
+    "split": "test",
+    "rows": 160,
+    "accuracy": 0.85,
+    "macro_precision": 0.8583333333333334,
+    "macro_recall": 0.8500000000000001,
+    "macro_f1": 0.8494949494949495,
+    "weighted_f1": 0.8494949494949495,
+    "per_class": {
+      "CRITICAL": {
+        "precision": 0.8333333333333334,
+        "recall": 1.0,
+        "f1": 0.9090909090909091,
+        "support": 40
+      },
+      "HIGH": {
+        "precision": 1.0,
+        "recall": 0.8,
+        "f1": 0.8888888888888888,
+        "support": 40
+      },
+      "MEDIUM": {
+        "precision": 0.8,
+        "recall": 0.8,
+        "f1": 0.8,
+        "support": 40
+      },
+      "LOW": {
+        "precision": 0.8,
+        "recall": 0.8,
+        "f1": 0.8,
+        "support": 40
+      }
+    },
+    "confusion_matrix": [
+      [
+        40,
+        0,
+        0,
+        0
+      ],
+      [
+        8,
+        32,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        32,
+        8
+      ],
+      [
+        0,
+        0,
+        8,
+        32
+      ]
+    ],
+    "labels": [
+      "CRITICAL",
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ],
+    "critical_to_low_errors": 0,
+    "critical_to_low_error_rate": 0.0,
+    "high_to_low_errors": 0,
+    "high_to_low_error_rate": 0.0
+  },
+  "v1_comparison": {
+    "split": "test",
+    "rows": 800,
+    "accuracy": 0.50625,
+    "macro_precision": 0.466898655584622,
+    "macro_recall": 0.50625,
+    "macro_f1": 0.4820246639458319,
+    "weighted_f1": 0.4820246639458319,
+    "per_class": {
+      "CRITICAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 200
+      },
+      "HIGH": {
+        "precision": 0.3377926421404682,
+        "recall": 0.505,
+        "f1": 0.40480961923847697,
+        "support": 200
+      },
+      "MEDIUM": {
+        "precision": 0.019801980198019802,
+        "recall": 0.01,
+        "f1": 0.013289036544850499,
+        "support": 200
+      },
+      "LOW": {
+        "precision": 0.51,
+        "recall": 0.51,
+        "f1": 0.51,
+        "support": 200
+      }
+    },
+    "confusion_matrix": [
+      [
+        200,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        101,
+        99,
+        0
+      ],
+      [
+        0,
+        100,
+        2,
+        98
+      ],
+      [
+        0,
+        98,
+        0,
+        102
+      ]
+    ],
+    "labels": [
+      "CRITICAL",
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ],
+    "critical_to_low_errors": 0,
+    "critical_to_low_error_rate": 0.0,
+    "high_to_low_errors": 0,
+    "high_to_low_error_rate": 0.0
+  },
+  "limitations": [
+    "All V2 rows are controlled synthetic examples.",
+    "The model is experimental and not production-approved.",
+    "No production inference or existing model artifact is changed."
+  ]
+}

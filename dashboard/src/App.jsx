@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 import LandingPage from './pages/LandingPage';
 import OperationsDashboard from './pages/OperationsDashboard';
+import ResolvedEmergencies from './pages/ResolvedEmergencies';
+import EmergencyDetails from './pages/EmergencyDetails';
 import { OPERATIONS_HASH } from './brand';
 
 function currentView() {
-  return window.location.hash === OPERATIONS_HASH ? 'operations' : 'home';
+  const hash = window.location.hash;
+  if (hash.startsWith('#emergency/')) return 'details';
+  if (hash === '#resolved') return 'resolved';
+  return hash === OPERATIONS_HASH ? 'operations' : 'home';
 }
 
 function App() {
@@ -16,6 +21,11 @@ function App() {
     return () => window.removeEventListener('hashchange', syncView);
   }, []);
 
+  if (view === 'details') {
+    const id = window.location.hash.split('/')[1];
+    return <EmergencyDetails id={id} />;
+  }
+  if (view === 'resolved') return <ResolvedEmergencies />;
   return view === 'operations' ? <OperationsDashboard /> : <LandingPage />;
 }
 
