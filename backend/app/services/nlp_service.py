@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from ml.src.inference import Classifier
-from ml.src.inference.urgency import contains_strong_emergency_indicator
+from ml.src.inference.urgency import has_emergency_indicator
 
 DISASTER_TYPE_MIN_CONFIDENCE = 0.50
 OPERATIONAL_RELEVANCE_MIN_CONFIDENCE = 0.70
@@ -45,7 +45,7 @@ def has_safety_evidence(
 ) -> bool:
     return (
         any((injured, trapped, fire, medical_emergency))
-        or contains_strong_emergency_indicator(message)
+        or has_emergency_indicator(message)
         or bool(_EXPLICIT_SAFETY_RE.search(message))
     )
 
@@ -73,7 +73,6 @@ def analyze_message(
     relevance_result = relevance.predict(message)
     ai_relevant = relevance_result["label"] == "relevant"
     relevance_confidence = relevance_result["confidence"]
-    structured_safety = any((injured, trapped, fire, medical_emergency))
     safety_override = has_safety_evidence(
         message,
         injured=injured,
@@ -108,6 +107,8 @@ def analyze_message(
             "priority_classification_source": source,
             "priority_classification_review_required": False,
             "ai_priority_reason": f"{reason}{evidence_note}",
+            "emergency_evidence_detected": safety_override,
+            "operational_safety_processing": safety_override,
             "ai_disaster_type": None,
             "ai_disaster_type_confidence": None,
             "operational_category": None,
@@ -120,16 +121,11 @@ def analyze_message(
     priority_label = priority_result["label"]
     priority_confidence = priority_result["confidence"]
     priority_review_required = priority_confidence < PRIORITY_MIN_CONFIDENCE
-    strong_critical_evidence = trapped or contains_strong_emergency_indicator(message)
-    if strong_critical_evidence:
-        priority_label = "CRITICAL"
     priority_reason = (
         f"The priority model predicted {priority_result['label']} with "
         f"{priority_confidence:.1%} non-calibrated confidence."
     )
-    if strong_critical_evidence and priority_result["label"] != "CRITICAL":
-        priority_reason += " Explicit emergency evidence elevated the AI priority to CRITICAL."
-    if priority_review_required and not strong_critical_evidence:
+    if priority_review_required:
         priority_reason += (
             f" Confidence is below the {PRIORITY_MIN_CONFIDENCE:.0%} experimental "
             "threshold, so manual priority review is required."
@@ -167,9 +163,11 @@ def analyze_message(
         "ai_urgency_confidence": priority_confidence,
         "ai_priority": priority_label,
         "ai_priority_confidence": priority_confidence,
-        "priority_classification_source": "AI" if not priority_review_required or strong_critical_evidence else "MANUAL_REVIEW",
-        "priority_classification_review_required": priority_review_required and not strong_critical_evidence,
+        "priority_classification_source": "AI" if not priority_review_required else "MANUAL_REVIEW",
+        "priority_classification_review_required": priority_review_required,
         "ai_priority_reason": priority_reason,
+        "emergency_evidence_detected": safety_override,
+        "operational_safety_processing": safety_override,
         "ai_disaster_type": disaster_type_label,
         "ai_disaster_type_confidence": disaster_confidence,
         "operational_category": operational_category,

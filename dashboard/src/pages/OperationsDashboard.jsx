@@ -59,7 +59,6 @@ function OperationsDashboard() {
   const confidenceLabel = (value) => (
     typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—'
   );
-  const priorityRank = { LOW: 0, MEDIUM: 1, HIGH: 2, CRITICAL: 3 };
   const hasCurrentAiAnalysis = (emergency) => Boolean(emergency.priority_classification_source);
   const aiPriorityLabel = (emergency) => (
     hasCurrentAiAnalysis(emergency) && emergency.ai_priority
@@ -78,12 +77,7 @@ function OperationsDashboard() {
       : `Final Priority: ${emergency.priority_level}`
   );
   const safetyElevation = (emergency) => (
-    hasCurrentAiAnalysis(emergency)
-      && emergency.priority_classification_source === 'AI'
-      && emergency.ai_priority
-      && priorityRank[emergency.priority_level] > priorityRank[emergency.ai_priority]
-      ? `Safety protection elevated final priority from ${emergency.ai_priority} to ${emergency.priority_level}.`
-      : null
+    emergency.safety_protection_applied ? emergency.final_priority_reason : null
   );
   const typeLabel = (value) => value ? String(value).replaceAll('_', ' ').toUpperCase() : 'Not analyzed';
   const categoryLabel = (emergency) => (

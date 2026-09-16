@@ -120,6 +120,8 @@ def test_not_relevant_urgency_cannot_raise_final_priority(client):
     assert data["ai_disaster_type_confidence"] is None
     assert data["classification_source"] == "NOT_RELEVANT"
     assert data["classification_review_required"] is False
+    assert data["emergency_evidence_detected"] is False
+    assert data["operational_safety_processing"] is False
 
 
 @pytest.mark.parametrize("message", ["Happy birthday", "I am happy", "Hello"])
@@ -247,7 +249,9 @@ def test_high_confidence_ai_priority_becomes_operational_priority(client, monkey
     assert data["ai_priority"] == "HIGH"
     assert data["priority_classification_source"] == "AI"
     assert data["priority_classification_review_required"] is False
-    assert data["priority_level"] == "HIGH"
+    assert data["priority_level"] == "LOW"
+    assert data["priority_score"] == 10
+    assert data["final_priority_reason"].startswith("Deterministic rescue priority")
 
 
 def test_manual_priority_review_persists(client, monkeypatch):
@@ -640,7 +644,9 @@ def test_low_relevance_confidence_with_trapped_text_uses_safety_path(client, mon
     assert data["ai_relevant"] is True
     assert data["ai_urgency"] in {"LOW", "MEDIUM", "CRITICAL"}
     assert data["priority_score"] == 55
-    assert data["priority_level"] == "MEDIUM"
+    assert data["priority_level"] == "CRITICAL"
+    assert data["safety_protection_applied"] is True
+    assert "Safety protection elevated" in data["final_priority_reason"]
 
 
 def test_relevant_low_disaster_confidence_requires_manual_review(client, monkeypatch):
@@ -666,6 +672,100 @@ def test_relevant_low_disaster_confidence_requires_manual_review(client, monkeyp
     assert data["classification_review_required"] is True
     assert data["ai_disaster_type"] == "hurricane"
     assert data["operational_category"] is None
+
+
+@pytest.mark.parametrize("message", ["Happy birthday", "Idiot"])
+def test_non_emergency_messages_stop_at_relevance_gate(client, message):
+    response = client.post("/api/emergencies", json=_message_payload(message))
+    assert response.status_code == 201
+    data = response.json()
+    assert data["ai_relevant"] is False
+    assert data["priority_classification_source"] == "NOT_RELEVANT"
+    assert data["classification_source"] == "NOT_RELEVANT"
+    assert data["ai_priority"] is None
+    assert data["ai_disaster_type"] is None
+    assert data["priority_level"] == "LOW"
+    assert data["priority_score"] == 0
+    assert data["safety_protection_applied"] is False
+
+
+def test_water_rising_message_forces_emergency_processing(client):
+    response = client.post(
+        "/api/emergencies",
+        json=_message_payload("I can see water rising in my street"),
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["ai_priority"] is not None
+    assert data["ai_disaster_type"] is not None
+    assert data["priority_classification_source"] in {"AI", "MANUAL_REVIEW"}
+    assert data["classification_source"] in {"AI", "MANUAL_REVIEW"}
+    assert data["ai_relevant"] is False
+    assert data["emergency_evidence_detected"] is True
+    assert data["operational_safety_processing"] is True
+
+
+def test_possible_trapped_people_have_explicit_safety_elevation(client):
+    response = client.post(
+        "/api/emergencies",
+        json=_message_payload(
+            "Children might be trapped in the building in front of me",
+            urgency=3,
+        ),
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["priority_score"] == 30
+    assert data["priority_level"] == "CRITICAL"
+    assert data["safety_protection_applied"] is True
+    assert "Safety protection elevated" in data["final_priority_reason"]
+    assert data["emergency_evidence_detected"] is True
+    assert data["operational_safety_processing"] is True
+
+
+def test_post_get_preserves_final_priority_explanation(client):
+    response = client.post(
+        "/api/emergencies",
+        json=_message_payload("People are bleeding after a building collapse"),
+    )
+    assert response.status_code == 201
+    created = response.json()
+    fetched = client.get(f"/api/emergencies/{created['id']}")
+    assert fetched.status_code == 200
+    assert fetched.json()["final_priority_reason"] == created["final_priority_reason"]
+    assert fetched.json()["safety_protection_applied"] == created["safety_protection_applied"]
+
+
+def test_ai_critical_does_not_override_deterministic_score(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.emergency.analyze_message",
+        lambda message, **kwargs: {
+            "ai_relevant": True,
+            "ai_relevance_confidence": 0.95,
+            "ai_urgency": "CRITICAL",
+            "ai_urgency_confidence": 0.90,
+            "ai_priority": "CRITICAL",
+            "ai_priority_confidence": 0.90,
+            "priority_classification_source": "AI",
+            "priority_classification_review_required": False,
+            "ai_priority_reason": "High-confidence priority.",
+            "ai_disaster_type": "flood",
+            "ai_disaster_type_confidence": 0.80,
+            "operational_category": "NATURAL DISASTER",
+            "classification_source": "AI",
+            "classification_review_required": False,
+            "ai_classification_reason": "Flood classification.",
+            "emergency_evidence_detected": False,
+            "operational_safety_processing": False,
+        },
+    )
+    response = client.post("/api/emergencies", json=_message_payload("Flood assistance needed", urgency=3))
+    assert response.status_code == 201
+    data = response.json()
+    assert data["ai_priority"] == "CRITICAL"
+    assert data["priority_score"] == 30
+    assert data["priority_level"] == "MEDIUM"
+    assert data["safety_protection_applied"] is False
 
 
 def test_relevant_high_disaster_confidence_gets_category(client, monkeypatch):

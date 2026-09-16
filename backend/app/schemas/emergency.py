@@ -61,6 +61,10 @@ class EmergencyResponse(BaseModel):
     ]] = None
     priority_classification_review_required: Optional[bool] = None
     ai_priority_reason: Optional[str] = None
+    emergency_evidence_detected: Optional[bool] = None
+    operational_safety_processing: Optional[bool] = None
+    safety_protection_applied: Optional[bool] = None
+    final_priority_reason: Optional[str] = None
     ai_disaster_type: Optional[str] = None
     ai_disaster_type_confidence: Optional[float] = None
     operational_category: Optional[Literal[

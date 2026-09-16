@@ -7,16 +7,56 @@ from app.database import get_db
 from app.models.emergency import Emergency
 from app.schemas.emergency import EmergencyCreate, EmergencyUpdate, EmergencyResponse
 from app.services.priority import calculate_priority
-from app.services.nlp_service import analyze_message, has_safety_evidence
+from app.services.nlp_service import (
+    analyze_message,
+    has_safety_evidence,
+)
+from ml.src.inference.urgency import contains_strong_emergency_indicator
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["emergencies"])
-PRIORITY_ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+def _finalize_priority(emergency_data, ai_results):
+    no_structured_safety = not any((
+        emergency_data.injured,
+        emergency_data.trapped,
+        emergency_data.fire,
+        emergency_data.medical_emergency,
+    ))
+    not_relevant_without_safety = (
+        ai_results.get("ai_relevant") is False
+        and no_structured_safety
+        and not ai_results.get("operational_safety_processing", False)
+    )
+    low_relevance_without_safety = (
+        ai_results.get("classification_source") == "LOW_RELEVANCE_CONFIDENCE"
+        and no_structured_safety
+        and not has_safety_evidence(emergency_data.message)
+    )
+    if not_relevant_without_safety or low_relevance_without_safety:
+        return 0, "LOW", False, "Not relevant and no explicit safety evidence; final priority is LOW with score 0."
 
-
-def _highest_priority(left: str, right: str) -> str:
-    return left if PRIORITY_ORDER[left] >= PRIORITY_ORDER[right] else right
+    score, deterministic_level = calculate_priority(
+        urgency=emergency_data.urgency,
+        people_affected=emergency_data.people_affected,
+        injured=emergency_data.injured,
+        trapped=emergency_data.trapped,
+        fire=emergency_data.fire,
+        medical_emergency=emergency_data.medical_emergency,
+    )
+    safety_elevation = (
+        emergency_data.trapped
+        or emergency_data.injured and contains_strong_emergency_indicator(emergency_data.message)
+        or contains_strong_emergency_indicator(emergency_data.message)
+    )
+    if safety_elevation and deterministic_level != "CRITICAL":
+        return (
+            score,
+            "CRITICAL",
+            True,
+            "Safety protection elevated final priority to CRITICAL because the message or structured fields indicate a life-threatening emergency.",
+        )
+    return score, deterministic_level, False, f"Deterministic rescue priority from SOS fields and urgency: {deterministic_level} with score {score}."
 
 
 def populate_missing_ai_analysis(emergencies, db):
@@ -35,6 +75,10 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
         "priority_classification_source": None,
         "priority_classification_review_required": None,
         "ai_priority_reason": None,
+        "emergency_evidence_detected": None,
+        "operational_safety_processing": None,
+        "safety_protection_applied": None,
+        "final_priority_reason": None,
         "ai_disaster_type": None,
         "ai_disaster_type_confidence": None,
         "operational_category": None,
@@ -53,13 +97,12 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
     except Exception:
         logger.exception("NLP analysis failed; storing emergency without AI fields")
 
-    no_structured_safety_evidence = not any((
+    if ai_results.get("ai_relevant") is False and not any((
         emergency_data.injured,
         emergency_data.trapped,
         emergency_data.fire,
         emergency_data.medical_emergency,
-    ))
-    if ai_results.get("ai_relevant") is False and no_structured_safety_evidence:
+    )) and not has_safety_evidence(emergency_data.message):
         ai_results.update({
             "ai_urgency": None,
             "ai_urgency_confidence": None,
@@ -68,6 +111,8 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
             "priority_classification_source": "NOT_RELEVANT",
             "priority_classification_review_required": False,
             "ai_priority_reason": "The relevance model classified this message as not relevant; no explicit structured emergency indicators were supplied.",
+            "emergency_evidence_detected": False,
+            "operational_safety_processing": False,
             "ai_disaster_type": None,
             "ai_disaster_type_confidence": None,
             "operational_category": None,
@@ -75,31 +120,15 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
             "classification_review_required": False,
             "ai_classification_reason": "The relevance model classified this message as not relevant; no explicit structured emergency indicators were supplied.",
         })
-        priority_score, priority_level = 0, "LOW"
+        priority_score, priority_level, safety_applied, final_reason = _finalize_priority(
+            emergency_data, ai_results
+        )
     else:
-        classification_processed = ai_results.get("classification_source") in {"AI", "MANUAL_REVIEW", "MANUAL"}
-        if classification_processed or has_safety_evidence(
-            emergency_data.message,
-            injured=emergency_data.injured,
-            trapped=emergency_data.trapped,
-            fire=emergency_data.fire,
-            medical_emergency=emergency_data.medical_emergency,
-        ):
-            priority_score, priority_level = calculate_priority(
-                urgency=emergency_data.urgency,
-                people_affected=emergency_data.people_affected,
-                injured=emergency_data.injured,
-                trapped=emergency_data.trapped,
-                fire=emergency_data.fire,
-                medical_emergency=emergency_data.medical_emergency,
-            )
-        else:
-            priority_score, priority_level = 0, "LOW"
-        if (
-            ai_results.get("ai_priority")
-            and ai_results.get("priority_classification_source") == "AI"
-        ):
-            priority_level = _highest_priority(priority_level, ai_results["ai_priority"])
+        priority_score, priority_level, safety_applied, final_reason = _finalize_priority(
+            emergency_data, ai_results
+        )
+    ai_results["safety_protection_applied"] = safety_applied
+    ai_results["final_priority_reason"] = final_reason
     db_emergency = Emergency(
         message=emergency_data.message,
         latitude=emergency_data.latitude,
@@ -156,6 +185,7 @@ def update_emergency_status(emergency_id: int, update_data: EmergencyUpdate, db:
         emergency.priority_level = update_data.manual_priority
         emergency.priority_classification_source = "MANUAL"
         emergency.priority_classification_review_required = False
+        emergency.final_priority_reason = f"Manual operator selected final priority {update_data.manual_priority}."
     if update_data.message is not None:
         emergency.message = update_data.message
     db.commit()
@@ -200,13 +230,16 @@ def reanalyze_legacy_emergencies(db: Session = Depends(get_db)):
             )
         else:
             emergency.priority_score, emergency.priority_level = 0, "LOW"
-        if (
-            results.get("ai_priority")
-            and results.get("priority_classification_source") == "AI"
-        ):
-            emergency.priority_level = _highest_priority(
-                emergency.priority_level,
-                results["ai_priority"],
+        emergency.safety_protection_applied = (
+            emergency.trapped or contains_strong_emergency_indicator(emergency.message)
+        )
+        if emergency.safety_protection_applied and emergency.priority_level != "CRITICAL":
+            emergency.priority_level = "CRITICAL"
+            emergency.final_priority_reason = "Safety protection elevated final priority to CRITICAL during reanalysis."
+        else:
+            emergency.final_priority_reason = (
+                f"Deterministic rescue priority from SOS fields and urgency: "
+                f"{emergency.priority_level} with score {emergency.priority_score}."
             )
     db.commit()
     for emergency in records:
