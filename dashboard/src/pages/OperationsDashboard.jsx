@@ -84,6 +84,12 @@ function OperationsDashboard() {
   };
 
   const priorityClass = (priority) => `priority-badge ${String(priority || 'LOW').toLowerCase()}`;
+  const confidenceLabel = (value) => (
+    typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—'
+  );
+  const relevanceLabel = (value) => (
+    value === true ? 'Relevant' : value === false ? 'Not Relevant' : 'Unavailable'
+  );
   const statusFailed = statusMessage === 'Unable to update emergency status.';
 
   return (
@@ -223,6 +229,34 @@ function OperationsDashboard() {
                   <div><span>Longitude</span><strong>{selectedEmergency.longitude ?? 'N/A'}</strong></div>
                   <div><span>Created</span><strong>{new Date(selectedEmergency.created_at).toLocaleString()}</strong></div>
                 </div>
+
+                <section className="ai-analysis" aria-labelledby="ai-analysis-heading">
+                  <div className="ai-analysis-header">
+                    <h3 id="ai-analysis-heading">AI ANALYSIS</h3>
+                    <span>Supporting information</span>
+                  </div>
+                  <div className="ai-analysis-grid">
+                    <div>
+                      <span>Relevance</span>
+                      <strong>{relevanceLabel(selectedEmergency.ai_relevant)}</strong>
+                    </div>
+                    <div>
+                      <span>Model confidence</span>
+                      <strong>{confidenceLabel(selectedEmergency.ai_relevance_confidence)}</strong>
+                    </div>
+                    <div>
+                      <span>AI Urgency</span>
+                      <strong>{selectedEmergency.ai_urgency ?? 'Unavailable'}</strong>
+                    </div>
+                    <div>
+                      <span>Decision confidence</span>
+                      <strong>{confidenceLabel(selectedEmergency.ai_urgency_confidence)}</strong>
+                    </div>
+                  </div>
+                  <p className="ai-analysis-note">
+                    AI Urgency is analysis only. Priority remains the existing rescue priority.
+                  </p>
+                </section>
 
                 <div className="status-control">
                   <label htmlFor="status-update">Update status</label>

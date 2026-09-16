@@ -330,6 +330,59 @@
   padding: 10px 12px;
 }
 
+.ai-analysis {
+  margin: 18px 0;
+  padding: 16px;
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: rgba(8, 16, 32, 0.42);
+}
+
+.ai-analysis-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ai-analysis-header h3 {
+  margin: 0;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+.ai-analysis-header span,
+.ai-analysis-note {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.ai-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ai-analysis-grid div {
+  display: grid;
+  gap: 4px;
+}
+
+.ai-analysis-grid span {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.ai-analysis-grid strong {
+  font-size: 0.92rem;
+}
+
+.ai-analysis-note {
+  margin: 12px 0 0;
+  line-height: 1.45;
+}
+
 .communication-details span,
 .detail-grid span {
   color: var(--text-muted);
@@ -526,7 +579,8 @@
   .relay-concept,
   .communication-flow,
   .communication-details,
-  .detail-grid {
+  .detail-grid,
+  .ai-analysis-grid {
     grid-template-columns: 1fr;
   }
 

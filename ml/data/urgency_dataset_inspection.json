@@ -1,0 +1,48 @@
+{
+  "source_dataset": "CrisisBench v1.0 event-aware humanitarian files",
+  "source_url": "https://crisisnlp.qcri.org/data/crisis_datasets_benchmarks/crisis_datasets_benchmarks_v1.0.tar.gz",
+  "files": [
+    "crisis_consolidated_humanitarian_filtered_lang_en_w_event_info_dev.tsv",
+    "crisis_consolidated_humanitarian_filtered_lang_en_w_event_info_test.tsv",
+    "crisis_consolidated_humanitarian_filtered_lang_en_w_event_info_train.tsv"
+  ],
+  "label_mapping": {
+    "not_humanitarian": "LOW",
+    "infrastructure_and_utilities_damage": "MEDIUM",
+    "caution_and_advice": "MEDIUM",
+    "sympathy_and_support": "MEDIUM",
+    "requests_or_needs": "CRITICAL",
+    "injured_or_dead_people": "CRITICAL",
+    "affected_individual": "CRITICAL",
+    "missing_and_found_people": "CRITICAL",
+    "displaced_and_evacuations": "CRITICAL",
+    "response_efforts": "CRITICAL",
+    "donation_and_volunteering": "CRITICAL"
+  },
+  "mapping_note": "Urgency is an operational derived label, not a source annotation.",
+  "source_rows": 87557,
+  "excluded_rows": 0,
+  "processed_rows": 87557,
+  "class_counts": {
+    "CRITICAL": 22764,
+    "LOW": 51635,
+    "MEDIUM": 13158
+  },
+  "event_count": 60,
+  "events_by_class": {
+    "CRITICAL": 49,
+    "LOW": 56,
+    "MEDIUM": 48
+  },
+  "duplicate_text_count": 0,
+  "duplicate_text_event_count": 0,
+  "missing_values": {
+    "text": 0,
+    "urgency": 0,
+    "source_dataset": 0,
+    "class_label": 0,
+    "event_id": 0,
+    "source_file": 0,
+    "original_tweet_id": 0
+  }
+}

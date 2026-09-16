@@ -55,6 +55,87 @@ def test_create_valid_emergency(client):
     data = response.json()
     assert data["message"] == "Building collapse"
     assert data["status"] == "PENDING"
+    assert data["ai_relevant"] is not None
+    assert data["ai_urgency"] in {"LOW", "MEDIUM", "CRITICAL"}
+
+
+def test_irrelevant_message_is_still_stored(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.routes.emergency.analyze_message",
+        lambda message: {
+            "ai_relevant": False,
+            "ai_relevance_confidence": 0.8,
+            "ai_urgency": "LOW",
+            "ai_urgency_confidence": 0.8,
+        },
+    )
+    response = client.post("/api/emergencies", json={
+        "message": "The weather is beautiful today.",
+        "latitude": 0,
+        "longitude": 0,
+        "people_affected": 1,
+        "injured": False,
+        "trapped": False,
+        "fire": False,
+        "medical_emergency": False,
+        "urgency": 1,
+    })
+    assert response.status_code == 201
+    assert response.json()["id"] is not None
+    assert response.json()["ai_relevant"] is False
+
+
+def test_strong_message_gets_critical_ai_urgency(client):
+    response = client.post("/api/emergencies", json={
+        "message": "People are trapped and need rescue immediately.",
+        "latitude": 0,
+        "longitude": 0,
+        "people_affected": 2,
+        "injured": False,
+        "trapped": True,
+        "fire": False,
+        "medical_emergency": False,
+        "urgency": 3,
+    })
+    assert response.status_code == 201
+    assert response.json()["ai_urgency"] == "CRITICAL"
+
+
+def test_empty_message_keeps_existing_validation(client):
+    response = client.post("/api/emergencies", json={
+        "message": " ",
+        "people_affected": 1,
+        "injured": False,
+        "trapped": False,
+        "fire": False,
+        "medical_emergency": False,
+        "urgency": 1,
+    })
+    assert response.status_code == 422
+
+
+def test_ml_failure_does_not_block_storage(client, monkeypatch, caplog):
+    def fail_analysis(message):
+        raise RuntimeError("test inference failure")
+
+    monkeypatch.setattr("app.routes.emergency.analyze_message", fail_analysis)
+    response = client.post("/api/emergencies", json={
+        "message": "Emergency despite model failure",
+        "latitude": 0,
+        "longitude": 0,
+        "people_affected": 1,
+        "injured": False,
+        "trapped": False,
+        "fire": False,
+        "medical_emergency": False,
+        "urgency": 2,
+    })
+    assert response.status_code == 201
+    data = response.json()
+    assert data["priority_level"] == "LOW"
+    assert data["ai_relevant"] is None
+    assert data["ai_urgency"] is None
+    assert "NLP analysis failed" in caplog.text
 
 def test_create_emergency_invalid_urgency(client):
     response = client.post("/api/emergencies", json={

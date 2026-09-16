@@ -1,0 +1,656 @@
+{
+  "source": {
+    "name": "Disaster Tweet Corpus 2020",
+    "doi": "10.5281/zenodo.3713920",
+    "official_page": "https://zenodo.org/records/3713920",
+    "archive": "disaster-tweet-filtering-incident-tweets.zip"
+  },
+  "files": {
+    "count": 48,
+    "paths": [
+      "incident-tweets/biological-ebola-2014.ndjson",
+      "incident-tweets/biological-mers-2014.ndjson",
+      "incident-tweets/earthquake-bohol-2013.ndjson",
+      "incident-tweets/earthquake-california-2013.ndjson",
+      "incident-tweets/earthquake-chile-2013.ndjson",
+      "incident-tweets/earthquake-costarica-2012.ndjson",
+      "incident-tweets/earthquake-guatemala-2012.ndjson",
+      "incident-tweets/earthquake-iraq-iran-2017.ndjson",
+      "incident-tweets/earthquake-italy-2012.ndjson",
+      "incident-tweets/earthquake-mexico-2017.ndjson",
+      "incident-tweets/earthquake-nepal-2015.ndjson",
+      "incident-tweets/earthquake-nepal-2018.ndjson",
+      "incident-tweets/earthquake-pakistan-2013.ndjson",
+      "incident-tweets/flood-alberta-2013.ndjson",
+      "incident-tweets/flood-colorado-2013.ndjson",
+      "incident-tweets/flood-india-2014.ndjson",
+      "incident-tweets/flood-manila-2013.ndjson",
+      "incident-tweets/flood-pakistan-2014.ndjson",
+      "incident-tweets/flood-philipinnes-2012.ndjson",
+      "incident-tweets/flood-queensland-2013.ndjson",
+      "incident-tweets/flood-sardinia-2013.ndjson",
+      "incident-tweets/flood-srilanka-2017.ndjson",
+      "incident-tweets/hurricane-hagupit-2014.ndjson",
+      "incident-tweets/hurricane-harvey-2017.ndjson",
+      "incident-tweets/hurricane-irma-2017.ndjson",
+      "incident-tweets/hurricane-maria-2017.ndjson",
+      "incident-tweets/hurricane-odile-2014.ndjson",
+      "incident-tweets/hurricane-pablo-2012.ndjson",
+      "incident-tweets/hurricane-pam-2015.ndjson",
+      "incident-tweets/hurricane-sandy-2012.ndjson",
+      "incident-tweets/hurricane-yolanda-2013.ndjson",
+      "incident-tweets/industrial-savar-building-collapse-2013.ndjson",
+      "incident-tweets/industrial-texas-explosion-2013.ndjson",
+      "incident-tweets/industrial-venezuela-refinery-fire-2012.ndjson",
+      "incident-tweets/other-russia-meteor-2013.ndjson",
+      "incident-tweets/other-singapore-haze-2013.ndjson",
+      "incident-tweets/societal-boston-bombing-2013.ndjson",
+      "incident-tweets/societal-brazil-nightclub-fire-2013.ndjson",
+      "incident-tweets/societal-la-airport-shooting-2013.ndjson",
+      "incident-tweets/tornado-joplin-2011.ndjson",
+      "incident-tweets/tornado-oklahoma-2013.ndjson",
+      "incident-tweets/transportation-glasgow-helicopter-crash-2013.ndjson",
+      "incident-tweets/transportation-la-train-crash-2013.ndjson",
+      "incident-tweets/transportation-ny-train-crash-2013.ndjson",
+      "incident-tweets/transportation-spain-train-crash-2013.ndjson",
+      "incident-tweets/wildfire-australia-2013.ndjson",
+      "incident-tweets/wildfire-california-2014.ndjson",
+      "incident-tweets/wildfire-colorado-2012.ndjson"
+    ],
+    "schema_variants": {
+      "id|relevance|text": 163718
+    }
+  },
+  "records": {
+    "valid": 163718,
+    "malformed_count": 0,
+    "malformed_examples": [],
+    "unique_tweet_ids": 160567,
+    "missing_ids": 2760,
+    "missing_or_empty_text": 0,
+    "key_counts": {
+      "id": 163718,
+      "text": 163718,
+      "relevance": 163718
+    }
+  },
+  "labels": {
+    "relevance": {
+      "1": 81859,
+      "0": 81859
+    },
+    "disaster_types": {
+      "biological": 6106,
+      "earthquake": 33094,
+      "flood": 28420,
+      "hurricane": 48922,
+      "industrial": 9688,
+      "other": 2852,
+      "societal": 11684,
+      "tornado": 11808,
+      "transportation": 4704,
+      "wildfire": 6440
+    },
+    "disaster_type_count": 10,
+    "type_by_relevance": {
+      "biological": {
+        "1": 3053,
+        "0": 3053
+      },
+      "earthquake": {
+        "1": 16547,
+        "0": 16547
+      },
+      "flood": {
+        "1": 14210,
+        "0": 14210
+      },
+      "hurricane": {
+        "1": 24461,
+        "0": 24461
+      },
+      "industrial": {
+        "1": 4844,
+        "0": 4844
+      },
+      "other": {
+        "1": 1426,
+        "0": 1426
+      },
+      "societal": {
+        "1": 5842,
+        "0": 5842
+      },
+      "tornado": {
+        "1": 5904,
+        "0": 5904
+      },
+      "transportation": {
+        "1": 2352,
+        "0": 2352
+      },
+      "wildfire": {
+        "1": 3220,
+        "0": 3220
+      }
+    }
+  },
+  "events": {
+    "count": 48,
+    "records_by_event": {
+      "incident-tweets/biological-ebola-2014": 3448,
+      "incident-tweets/biological-mers-2014": 2658,
+      "incident-tweets/earthquake-bohol-2013": 1330,
+      "incident-tweets/earthquake-california-2013": 3346,
+      "incident-tweets/earthquake-chile-2013": 3840,
+      "incident-tweets/earthquake-costarica-2012": 568,
+      "incident-tweets/earthquake-guatemala-2012": 390,
+      "incident-tweets/earthquake-iraq-iran-2017": 966,
+      "incident-tweets/earthquake-italy-2012": 268,
+      "incident-tweets/earthquake-mexico-2017": 2396,
+      "incident-tweets/earthquake-nepal-2015": 5930,
+      "incident-tweets/earthquake-nepal-2018": 10592,
+      "incident-tweets/earthquake-pakistan-2013": 3468,
+      "incident-tweets/flood-alberta-2013": 9060,
+      "incident-tweets/flood-colorado-2013": 1706,
+      "incident-tweets/flood-india-2014": 3594,
+      "incident-tweets/flood-manila-2013": 1224,
+      "incident-tweets/flood-pakistan-2014": 3514,
+      "incident-tweets/flood-philipinnes-2012": 1324,
+      "incident-tweets/flood-queensland-2013": 6336,
+      "incident-tweets/flood-sardinia-2013": 182,
+      "incident-tweets/flood-srilanka-2017": 1480,
+      "incident-tweets/hurricane-hagupit-2014": 3916,
+      "incident-tweets/hurricane-harvey-2017": 7706,
+      "incident-tweets/hurricane-irma-2017": 7782,
+      "incident-tweets/hurricane-maria-2017": 7674,
+      "incident-tweets/hurricane-odile-2014": 2458,
+      "incident-tweets/hurricane-pablo-2012": 1426,
+      "incident-tweets/hurricane-pam-2015": 3886,
+      "incident-tweets/hurricane-sandy-2012": 12530,
+      "incident-tweets/hurricane-yolanda-2013": 1544,
+      "incident-tweets/industrial-savar-building-collapse-2013": 1462,
+      "incident-tweets/industrial-texas-explosion-2013": 8102,
+      "incident-tweets/industrial-venezuela-refinery-fire-2012": 124,
+      "incident-tweets/other-russia-meteor-2013": 1524,
+      "incident-tweets/other-singapore-haze-2013": 1328,
+      "incident-tweets/societal-boston-bombing-2013": 9576,
+      "incident-tweets/societal-brazil-nightclub-fire-2013": 478,
+      "incident-tweets/societal-la-airport-shooting-2013": 1630,
+      "incident-tweets/tornado-joplin-2011": 3752,
+      "incident-tweets/tornado-oklahoma-2013": 8056,
+      "incident-tweets/transportation-glasgow-helicopter-crash-2013": 1554,
+      "incident-tweets/transportation-la-train-crash-2013": 948,
+      "incident-tweets/transportation-ny-train-crash-2013": 1498,
+      "incident-tweets/transportation-spain-train-crash-2013": 704,
+      "incident-tweets/wildfire-australia-2013": 1730,
+      "incident-tweets/wildfire-california-2014": 2908,
+      "incident-tweets/wildfire-colorado-2012": 1802
+    },
+    "disaster_type_by_event": {
+      "incident-tweets/biological-ebola-2014": "biological",
+      "incident-tweets/biological-mers-2014": "biological",
+      "incident-tweets/earthquake-bohol-2013": "earthquake",
+      "incident-tweets/earthquake-california-2013": "earthquake",
+      "incident-tweets/earthquake-chile-2013": "earthquake",
+      "incident-tweets/earthquake-costarica-2012": "earthquake",
+      "incident-tweets/earthquake-guatemala-2012": "earthquake",
+      "incident-tweets/earthquake-iraq-iran-2017": "earthquake",
+      "incident-tweets/earthquake-italy-2012": "earthquake",
+      "incident-tweets/earthquake-mexico-2017": "earthquake",
+      "incident-tweets/earthquake-nepal-2015": "earthquake",
+      "incident-tweets/earthquake-nepal-2018": "earthquake",
+      "incident-tweets/earthquake-pakistan-2013": "earthquake",
+      "incident-tweets/flood-alberta-2013": "flood",
+      "incident-tweets/flood-colorado-2013": "flood",
+      "incident-tweets/flood-india-2014": "flood",
+      "incident-tweets/flood-manila-2013": "flood",
+      "incident-tweets/flood-pakistan-2014": "flood",
+      "incident-tweets/flood-philipinnes-2012": "flood",
+      "incident-tweets/flood-queensland-2013": "flood",
+      "incident-tweets/flood-sardinia-2013": "flood",
+      "incident-tweets/flood-srilanka-2017": "flood",
+      "incident-tweets/hurricane-hagupit-2014": "hurricane",
+      "incident-tweets/hurricane-harvey-2017": "hurricane",
+      "incident-tweets/hurricane-irma-2017": "hurricane",
+      "incident-tweets/hurricane-maria-2017": "hurricane",
+      "incident-tweets/hurricane-odile-2014": "hurricane",
+      "incident-tweets/hurricane-pablo-2012": "hurricane",
+      "incident-tweets/hurricane-pam-2015": "hurricane",
+      "incident-tweets/hurricane-sandy-2012": "hurricane",
+      "incident-tweets/hurricane-yolanda-2013": "hurricane",
+      "incident-tweets/industrial-savar-building-collapse-2013": "industrial",
+      "incident-tweets/industrial-texas-explosion-2013": "industrial",
+      "incident-tweets/industrial-venezuela-refinery-fire-2012": "industrial",
+      "incident-tweets/other-russia-meteor-2013": "other",
+      "incident-tweets/other-singapore-haze-2013": "other",
+      "incident-tweets/societal-boston-bombing-2013": "societal",
+      "incident-tweets/societal-brazil-nightclub-fire-2013": "societal",
+      "incident-tweets/societal-la-airport-shooting-2013": "societal",
+      "incident-tweets/tornado-joplin-2011": "tornado",
+      "incident-tweets/tornado-oklahoma-2013": "tornado",
+      "incident-tweets/transportation-glasgow-helicopter-crash-2013": "transportation",
+      "incident-tweets/transportation-la-train-crash-2013": "transportation",
+      "incident-tweets/transportation-ny-train-crash-2013": "transportation",
+      "incident-tweets/transportation-spain-train-crash-2013": "transportation",
+      "incident-tweets/wildfire-australia-2013": "wildfire",
+      "incident-tweets/wildfire-california-2014": "wildfire",
+      "incident-tweets/wildfire-colorado-2012": "wildfire"
+    },
+    "events_by_disaster_type": {
+      "biological": [
+        "incident-tweets/biological-ebola-2014",
+        "incident-tweets/biological-mers-2014"
+      ],
+      "earthquake": [
+        "incident-tweets/earthquake-bohol-2013",
+        "incident-tweets/earthquake-california-2013",
+        "incident-tweets/earthquake-chile-2013",
+        "incident-tweets/earthquake-costarica-2012",
+        "incident-tweets/earthquake-guatemala-2012",
+        "incident-tweets/earthquake-iraq-iran-2017",
+        "incident-tweets/earthquake-italy-2012",
+        "incident-tweets/earthquake-mexico-2017",
+        "incident-tweets/earthquake-nepal-2015",
+        "incident-tweets/earthquake-nepal-2018",
+        "incident-tweets/earthquake-pakistan-2013"
+      ],
+      "flood": [
+        "incident-tweets/flood-alberta-2013",
+        "incident-tweets/flood-colorado-2013",
+        "incident-tweets/flood-india-2014",
+        "incident-tweets/flood-manila-2013",
+        "incident-tweets/flood-pakistan-2014",
+        "incident-tweets/flood-philipinnes-2012",
+        "incident-tweets/flood-queensland-2013",
+        "incident-tweets/flood-sardinia-2013",
+        "incident-tweets/flood-srilanka-2017"
+      ],
+      "hurricane": [
+        "incident-tweets/hurricane-hagupit-2014",
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017",
+        "incident-tweets/hurricane-maria-2017",
+        "incident-tweets/hurricane-odile-2014",
+        "incident-tweets/hurricane-pablo-2012",
+        "incident-tweets/hurricane-pam-2015",
+        "incident-tweets/hurricane-sandy-2012",
+        "incident-tweets/hurricane-yolanda-2013"
+      ],
+      "industrial": [
+        "incident-tweets/industrial-savar-building-collapse-2013",
+        "incident-tweets/industrial-texas-explosion-2013",
+        "incident-tweets/industrial-venezuela-refinery-fire-2012"
+      ],
+      "other": [
+        "incident-tweets/other-russia-meteor-2013",
+        "incident-tweets/other-singapore-haze-2013"
+      ],
+      "societal": [
+        "incident-tweets/societal-boston-bombing-2013",
+        "incident-tweets/societal-brazil-nightclub-fire-2013",
+        "incident-tweets/societal-la-airport-shooting-2013"
+      ],
+      "tornado": [
+        "incident-tweets/tornado-joplin-2011",
+        "incident-tweets/tornado-oklahoma-2013"
+      ],
+      "transportation": [
+        "incident-tweets/transportation-glasgow-helicopter-crash-2013",
+        "incident-tweets/transportation-la-train-crash-2013",
+        "incident-tweets/transportation-ny-train-crash-2013",
+        "incident-tweets/transportation-spain-train-crash-2013"
+      ],
+      "wildfire": [
+        "incident-tweets/wildfire-australia-2013",
+        "incident-tweets/wildfire-california-2014",
+        "incident-tweets/wildfire-colorado-2012"
+      ]
+    }
+  },
+  "duplicates": {
+    "duplicate_id_count": 22,
+    "duplicate_id_occurrence_count": 391,
+    "duplicate_ids_across_events": {
+      "911808511948058629": [
+        "incident-tweets/earthquake-mexico-2017",
+        "incident-tweets/hurricane-maria-2017"
+      ],
+      "912343228833320960": [
+        "incident-tweets/earthquake-mexico-2017",
+        "incident-tweets/hurricane-maria-2017"
+      ],
+      "905652450647982081": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909439227489898496": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909439401700110337": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909756427945828352": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909765035563601920": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909783995281440768": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909830129538490368": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909853837367930881": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909869486286635009": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909878550068645888": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "909975322724065281": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910094360179601408": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910141728929325056": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910160558011318279": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910162829461860352": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910184650307280896": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910187552266743808": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910213982677553152": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910236569629609984": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ],
+      "910242924885155843": [
+        "incident-tweets/hurricane-harvey-2017",
+        "incident-tweets/hurricane-irma-2017"
+      ]
+    },
+    "exact_duplicate_text_count": 4481,
+    "cross_event_duplicate_text_count": 2710,
+    "cross_event_duplicate_text_examples": [
+      {
+        "text": "hey darling, &lt <NUMBER> can u go follow me on instagram : marwan_tamer and dm me with your username for a followback x <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/wildfire-california-2014"
+        ]
+      },
+      {
+        "text": "for every retweet with <HASHTAG> bellletstalk, <NUMBER> will be donated towards mental health initiatives. spread the love, promote awarenes\u2026",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/wildfire-california-2014"
+        ]
+      },
+      {
+        "text": "before &amp; after <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/earthquake-nepal-2018"
+        ]
+      },
+      {
+        "text": "i posted a new photo to facebook <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/biological-mers-2014",
+          "incident-tweets/earthquake-california-2013",
+          "incident-tweets/earthquake-chile-2013",
+          "incident-tweets/earthquake-iraq-iran-2017",
+          "incident-tweets/earthquake-mexico-2017",
+          "incident-tweets/earthquake-nepal-2015",
+          "incident-tweets/earthquake-nepal-2018",
+          "incident-tweets/earthquake-pakistan-2013",
+          "incident-tweets/flood-alberta-2013",
+          "incident-tweets/flood-colorado-2013",
+          "incident-tweets/flood-india-2014",
+          "incident-tweets/flood-pakistan-2014",
+          "incident-tweets/flood-philipinnes-2012",
+          "incident-tweets/flood-queensland-2013",
+          "incident-tweets/hurricane-hagupit-2014",
+          "incident-tweets/hurricane-harvey-2017",
+          "incident-tweets/hurricane-irma-2017",
+          "incident-tweets/hurricane-maria-2017",
+          "incident-tweets/hurricane-odile-2014",
+          "incident-tweets/hurricane-pablo-2012",
+          "incident-tweets/hurricane-pam-2015",
+          "incident-tweets/hurricane-sandy-2012",
+          "incident-tweets/hurricane-yolanda-2013",
+          "incident-tweets/industrial-texas-explosion-2013",
+          "incident-tweets/other-russia-meteor-2013",
+          "incident-tweets/societal-boston-bombing-2013",
+          "incident-tweets/tornado-joplin-2011",
+          "incident-tweets/tornado-oklahoma-2013",
+          "incident-tweets/transportation-glasgow-helicopter-crash-2013",
+          "incident-tweets/transportation-spain-train-crash-2013",
+          "incident-tweets/wildfire-australia-2013",
+          "incident-tweets/wildfire-california-2014",
+          "incident-tweets/wildfire-colorado-2012"
+        ]
+      },
+      {
+        "text": "<HASHTAG> voicesavemakenzie come on y\u2019all this girl can actually sing remember it\u2019s called <HASHTAG> thevoice",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/earthquake-nepal-2018"
+        ]
+      },
+      {
+        "text": "at this point my mom should just get her own twitter \u0001 <REPEAT> <HASHTAG> voicesavemakenzie <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/earthquake-pakistan-2013",
+          "incident-tweets/flood-pakistan-2014",
+          "incident-tweets/hurricane-odile-2014",
+          "incident-tweets/societal-boston-bombing-2013",
+          "incident-tweets/tornado-joplin-2011"
+        ]
+      },
+      {
+        "text": "<USER> thank you!",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/societal-boston-bombing-2013",
+          "incident-tweets/wildfire-california-2014"
+        ]
+      },
+      {
+        "text": "\ud83c\udfb6 mitro's on fire \ud83d\udd25\ud83d\udd25\ud83d\udd25 <HASHTAG> nufc <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/biological-mers-2014",
+          "incident-tweets/transportation-ny-train-crash-2013"
+        ]
+      },
+      {
+        "text": "today stats: one follower, one unfollower via <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/flood-manila-2013",
+          "incident-tweets/flood-srilanka-2017",
+          "incident-tweets/hurricane-sandy-2012",
+          "incident-tweets/industrial-texas-explosion-2013",
+          "incident-tweets/societal-boston-bombing-2013",
+          "incident-tweets/societal-la-airport-shooting-2013"
+        ]
+      },
+      {
+        "text": "can you solve the puzzle and roll to the goal? <URL> <HASHTAG> indiegame <HASHTAG> iosgaming <HASHTAG> indiedev <HASHTAG> gamedev <HASHTAG> madewith\u2026",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/hurricane-sandy-2012"
+        ]
+      },
+      {
+        "text": "when america sends one of the best singers <USER> home you gotta right that wrong by voting for the best into the f\u2026",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/earthquake-nepal-2015",
+          "incident-tweets/hurricane-sandy-2012",
+          "incident-tweets/tornado-oklahoma-2013"
+        ]
+      },
+      {
+        "text": "shell, bp amongst leading contenders for persian gulf oil deal <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/hurricane-sandy-2012"
+        ]
+      },
+      {
+        "text": "photo: <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/biological-mers-2014",
+          "incident-tweets/earthquake-chile-2013",
+          "incident-tweets/earthquake-guatemala-2012",
+          "incident-tweets/earthquake-nepal-2015",
+          "incident-tweets/earthquake-nepal-2018",
+          "incident-tweets/earthquake-pakistan-2013",
+          "incident-tweets/flood-alberta-2013",
+          "incident-tweets/flood-srilanka-2017",
+          "incident-tweets/hurricane-hagupit-2014",
+          "incident-tweets/hurricane-harvey-2017",
+          "incident-tweets/hurricane-irma-2017",
+          "incident-tweets/hurricane-maria-2017",
+          "incident-tweets/hurricane-pam-2015",
+          "incident-tweets/hurricane-sandy-2012",
+          "incident-tweets/industrial-texas-explosion-2013",
+          "incident-tweets/other-singapore-haze-2013",
+          "incident-tweets/societal-boston-bombing-2013",
+          "incident-tweets/tornado-joplin-2011",
+          "incident-tweets/tornado-oklahoma-2013",
+          "incident-tweets/wildfire-australia-2013",
+          "incident-tweets/wildfire-california-2014"
+        ]
+      },
+      {
+        "text": "we all love her, she\u2019s amazing, i promise if she\u2019s gets voted off the show i\u2019m not watching the voice <HASHTAG> voicesavemakenz\u2026",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/flood-pakistan-2014",
+          "incident-tweets/transportation-ny-train-crash-2013"
+        ]
+      },
+      {
+        "text": "my daily stats: <NUMBER> new followers, <NUMBER> new unfollowers via <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/hurricane-pam-2015",
+          "incident-tweets/societal-boston-bombing-2013",
+          "incident-tweets/wildfire-california-2014"
+        ]
+      },
+      {
+        "text": "logged in to twitter after god knows how many years just to vote! she's a great voice from the stl area <HASHTAG> voicesavekennedy",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/earthquake-chile-2013",
+          "incident-tweets/wildfire-colorado-2012"
+        ]
+      },
+      {
+        "text": "<HASHTAG> voicesavereagan please let's save reagan. she has an amazing voice and talent.",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/earthquake-nepal-2018",
+          "incident-tweets/flood-alberta-2013",
+          "incident-tweets/hurricane-irma-2017",
+          "incident-tweets/societal-boston-bombing-2013",
+          "incident-tweets/transportation-la-train-crash-2013"
+        ]
+      },
+      {
+        "text": "how do i live without voting for <HASHTAG> voicesavekennedy. you are the winner of the show in my eyes. you are our whitney hou\u2026",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/transportation-ny-train-crash-2013"
+        ]
+      },
+      {
+        "text": "<NUMBER> chakras of zaughty ha <USER> <URL>",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/earthquake-bohol-2013",
+          "incident-tweets/earthquake-california-2013",
+          "incident-tweets/earthquake-nepal-2018",
+          "incident-tweets/flood-pakistan-2014",
+          "incident-tweets/hurricane-harvey-2017",
+          "incident-tweets/hurricane-irma-2017",
+          "incident-tweets/hurricane-odile-2014",
+          "incident-tweets/hurricane-pam-2015",
+          "incident-tweets/hurricane-sandy-2012",
+          "incident-tweets/hurricane-yolanda-2013",
+          "incident-tweets/industrial-texas-explosion-2013",
+          "incident-tweets/societal-boston-bombing-2013",
+          "incident-tweets/tornado-oklahoma-2013"
+        ]
+      },
+      {
+        "text": "<HASHTAG> voicesavemakenzie - i\u2019m watching this with my mom and sister right now. she honestly has a strong voice, and i really\u2026",
+        "events": [
+          "incident-tweets/biological-ebola-2014",
+          "incident-tweets/earthquake-nepal-2018",
+          "incident-tweets/flood-pakistan-2014"
+        ]
+      }
+    ]
+  },
+  "text_quality": {
+    "non_ascii_text_count": 37884,
+    "likely_non_english_count": 12275,
+    "likely_non_english_heuristic": "Count of non-empty texts containing non-ASCII alphabetic characters; this is a review flag, not language identification."
+  },
+  "event_aware_split": {
+    "events_per_disaster_type": {
+      "biological": 2,
+      "earthquake": 11,
+      "flood": 9,
+      "hurricane": 9,
+      "industrial": 3,
+      "other": 2,
+      "societal": 3,
+      "tornado": 2,
+      "transportation": 4,
+      "wildfire": 3
+    },
+    "feasible_for_three_partitions": false,
+    "limitation": "A three-way event-aware split requires at least three distinct events per class; this corpus may require merged validation/test strategies for classes with fewer events."
+  }
+}

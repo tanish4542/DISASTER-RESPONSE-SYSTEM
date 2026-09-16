@@ -1,235 +1,108 @@
-# Machine Learning - Disaster Response System
+# NLP/ML module
 
-## Overview
+## Implemented
 
-The **ML module** implements emergency classification and priority scoring using natural language processing. It analyzes SOS messages to:
+- Conservative reusable text normalization in `src/preprocessing/text.py`.
+- Leakage-safe `TfidfVectorizer` (word unigrams/bigrams) plus balanced
+  `LinearSVC` in `src/training/pipeline.py`.
+- Stratified train/validation/test splitting, validation of labeled CSVs,
+  per-class precision/recall/F1, accuracy, and confusion matrices.
+- Group-aware stratified splitting when a complete `event_id`, `event`,
+  `crisis_id`, or `group_id` column is present; otherwise the pipeline uses a
+  stratified random row split and records that limitation in metrics.
+- Joblib model persistence and a reusable inference interface.
+- Transparent SVM decision scores and a softmax-normalized relative confidence.
+  This is explicitly **NON-CALIBRATED confidence**, not a probability.
+- Tests and a manual evaluation command.
 
-- **Classify emergency types** (medical, structural, fire, water, etc.)
-- **Extract key information** from unstructured text
-- **Assign priority scores** based on urgency and severity
-- **Generate recommendations** for rescue teams
+`LinearSVC` is used instead of the former README's RBF SVM plan because sparse
+TF-IDF text is high-dimensional and LinearSVC is the appropriate efficient
+baseline. No accuracy target is claimed without evaluation on a real dataset.
 
-## Architecture
+## Dataset status and runtime integration
 
-### Core Components (Phase 5+)
+CrisisLexT26 v1.0 has been acquired and prepared, but no model has been trained
+in this phase. See [`data/README.md`](data/README.md) and
+`data/processed/crisislex_t26_inspection.json` for provenance, verified source
+labels, explicit mapping, removals, and class distribution. Source metadata
+columns are retained by preparation and can be used for group-aware splitting.
+Random row splitting can overestimate performance when related messages occur
+across splits.
 
-- **Text Preprocessing** - Tokenization, normalization, cleaning
-- **Feature Extraction** - TF-IDF vectorization
-- **Classification Model** - Support Vector Machine (SVM)
-- **Inference Pipeline** - Real-time classification
-- **Model Storage** - Serialized models and vocabularies
+The real CrisisLexT26 relevance model is stored at
+`models/relevance.joblib`. The experimental urgency model is stored at
+`models/urgency_experimental.joblib` and uses an explicit operational mapping
+from CrisisBench humanitarian labels; its confidence is decision-score-derived,
+not calibrated. A small safety override forces strong explicit emergency
+indicators to at least `CRITICAL`.
 
-### Current Status
+The backend loads those two artifacts lazily and augments stored emergency
+records. `models/disaster_type_experimental.joblib` is research-only and is
+not loaded by the application. The existing structured emergency fields and
+deterministic priority engine remain authoritative.
 
-**Phase 1: Initialization**
-- ✅ Module structure created
-- ✅ Directory layout for training and inference
-- ⏳ TF-IDF vectorizer (Phase 5)
-- ⏳ SVM model training (Phase 5)
-- ⏳ Preprocessing pipeline (Phase 5)
-- ⏳ Integration with backend (Phase 5)
+Training datasets and raw archives are local-only and ignored by Git. Model
+artifacts required for the integrated runtime are kept under `models/`.
 
-## Technology Stack
-
-- **Language**: Python 3.10+
-- **ML Library**: scikit-learn
-- **NLP**: TF-IDF, SVM, bag-of-words
-- **Data**: NumPy, Pandas
-- **Serialization**: joblib or pickle
-
-## Project Structure
+## Layout
 
 ```
 ml/
-├── data/                # Training and test datasets
-│   ├── raw/            # Original data
-│   ├── processed/      # Cleaned data
-│   └── splits/         # Train/test splits
-├── models/             # Trained model artifacts
-│   ├── tfidf_vectorizer.joblib
-│   ├── svm_classifier.joblib
-│   └── vocabulary.json
-├── preprocessing/      # Data cleaning & preparation
-│   ├── __init__.py
-│   ├── text_cleaner.py
-│   ├── tokenizer.py
-│   └── normalizer.py
-├── training/           # Model training scripts
-│   ├── __init__.py
-│   ├── train_svm.py
-│   ├── cross_validate.py
-│   └── hyperparameter_tuning.py
-├── inference/          # Prediction & deployment
-│   ├── __init__.py
-│   ├── classifier.py
-│   ├── priority_scorer.py
-│   └── batch_processor.py
-├── requirements.txt    # ML-specific dependencies
-├── README.md          # This file
-└── .gitignore
+├── data/README.md
+├── data/prepare_dataset.py
+├── inference/manual_eval.py
+├── __init__.py
+├── requirements.txt
+├── src/
+│   ├── inference/classifier.py
+│   ├── preprocessing/text.py
+│   └── training/pipeline.py
+├── tests/test_pipeline.py
+└── training/train.py
 ```
 
-## Planned Development
+The package is importable as `ml.src`. The command examples below work from
+the repository root or from the `ml/` directory because the scripts resolve
+their package root from their own file location.
 
-### Phase 5: Classification Engine
-1. Collect or create training dataset
-2. Implement TF-IDF vectorizer
-3. Train SVM model
-4. Evaluate performance
-5. Create inference API
-6. Integrate with backend
-
-### Phase 6: Advanced Features
-- Multi-class classification
-- Confidence scores
-- Uncertainty quantification
-- Model versioning
-- A/B testing
-
-## Installation
+## Install and test
 
 ```bash
 cd ml
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
+python -m pytest tests
 ```
 
-## Training Data Format
+`pytest` is included in `requirements.txt` for test/development use.
 
-Expected CSV format:
-```csv
-text,label,severity
-"Person trapped in building","structural_collapse",9
-"Water flooding, need boat","flood",8
-"Minor cuts, first aid sufficient","medical",3
+## Train on an acquired labeled dataset
+
+The CSV must contain `text,label`; the script does not download data or
+generate labels. Optional complete grouping columns named `event_id`, `event`,
+`crisis_id`, or `group_id` enable event-aware splitting. A custom grouping
+column can be supplied through the Python API.
+
+```bash
+cd ml
+python training/train.py \
+  --dataset data/processed/relevance.csv \
+  --model models/relevance.joblib \
+  --metrics models/relevance.metrics.json
 ```
 
-## Usage (Phase 5+)
+## Manual evaluation
 
-### Training
-
-```python
-from ml.preprocessing.text_cleaner import TextCleaner
-from ml.training.train_svm import train_classifier
-
-# Prepare data
-cleaner = TextCleaner()
-texts = [...]  # List of SOS messages
-labels = [...]  # Emergency types
-
-cleaned_texts = [cleaner.clean(t) for t in texts]
-
-# Train model
-model = train_classifier(cleaned_texts, labels)
-model.save("models/svm_classifier.joblib")
+```bash
+cd ml
+python inference/manual_eval.py \
+  --model models/relevance.joblib \
+  "Heavy rain is flooding our area and people are trapped."
 ```
 
-### Inference
+## Not implemented / not claimed
 
-```python
-from ml.inference.classifier import EmergencyClassifier
-
-classifier = EmergencyClassifier("models/")
-
-result = classifier.classify("Building collapsed, people trapped")
-print(f"Type: {result['type']}")
-print(f"Confidence: {result['confidence']}")
-print(f"Priority: {result['priority']}")
-```
-
-## Feature Engineering
-
-### TF-IDF Configuration
-- Max features: 5000
-- Min document frequency: 2
-- Max document frequency: 0.8
-- N-gram range: (1, 2)
-
-### SVM Parameters
-- Kernel: RBF
-- C: 1.0
-- Gamma: auto
-- Class weight: balanced
-
-## Evaluation Metrics
-
-- Accuracy
-- Precision & Recall per class
-- F1-score
-- Confusion matrix
-- ROC-AUC
-
-## Dataset Considerations
-
-- Class balance: Use SMOTE if imbalanced
-- Training set: 70% (>1000 examples per class)
-- Validation set: 15%
-- Test set: 15%
-- Cross-validation: 5-fold
-
-## Integration with Backend
-
-The backend will call the ML module:
-
-```python
-# In backend/app/services/classification_service.py
-from ml.inference.classifier import EmergencyClassifier
-
-classifier = EmergencyClassifier("../ml/models/")
-
-def classify_emergency(text: str):
-    result = classifier.classify(text)
-    return {
-        "type": result['type'],
-        "confidence": result['confidence'],
-        "priority": result['priority']
-    }
-```
-
-## Performance Targets
-
-- **Inference time**: < 100ms per message
-- **Accuracy**: > 85% on test set
-- **Memory usage**: < 500MB for loaded model
-- **Throughput**: > 1000 messages/second
-
-## Troubleshooting
-
-### Memory issues during training
-
-```python
-# Use SGDClassifier for large datasets
-from sklearn.linear_model import SGDClassifier
-```
-
-### Imbalanced classes
-
-```python
-# Use class weights
-model = SVC(class_weight='balanced')
-```
-
-### Model overfitting
-
-- Reduce TF-IDF features
-- Increase regularization (C parameter)
-- Use more training data
-- Apply cross-validation
-
-## Related Documentation
-
-- [System Architecture](../docs/architecture.md)
-- [ML Module Design](../docs/ml.md)
-
-## Resources
-
-- [scikit-learn Documentation](https://scikit-learn.org/)
-- [NLP with scikit-learn](https://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction)
-- [SVM Guide](https://scikit-learn.org/stable/modules/svm.html)
-
----
-
-**Phase**: 1 (Initialization)  
-**Status**: ✅ Ready for Phase 5 (Model Development)  
-**Last Updated**: August 2026
+- No backend integration or API changes
+- No live social-media ingestion
+- No BERT/Transformers, TensorFlow, PyTorch, CUDA, or CV integration
+- No on-device inference
+- No emergency-type or urgency model without explicit labeled data

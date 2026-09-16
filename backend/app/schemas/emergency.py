@@ -43,6 +43,10 @@ class EmergencyResponse(BaseModel):
     urgency: int
     priority_score: int
     priority_level: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]
+    ai_relevant: Optional[bool] = None
+    ai_relevance_confidence: Optional[float] = None
+    ai_urgency: Optional[str] = None
+    ai_urgency_confidence: Optional[float] = None
     status: Literal["PENDING", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED"]
     created_at: datetime
     updated_at: datetime

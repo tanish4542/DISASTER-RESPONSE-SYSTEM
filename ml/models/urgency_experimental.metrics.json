@@ -1,0 +1,62 @@
+{
+  "dataset_rows": 87557,
+  "train_rows": 69857,
+  "test_rows": 17700,
+  "class_counts": {
+    "CRITICAL": 22764,
+    "LOW": 51635,
+    "MEDIUM": 13158
+  },
+  "event_count": 60,
+  "train_test_event_overlap": 0,
+  "train_test_text_overlap": 0,
+  "model_configuration": "TF-IDF word n-grams (1,2) + balanced LinearSVC",
+  "accuracy": 0.7147457627118644,
+  "macro_precision": 0.6352723217752948,
+  "macro_recall": 0.6196780571312935,
+  "macro_f1": 0.6254426359944807,
+  "weighted_f1": 0.71801717411476,
+  "per_class": {
+    "CRITICAL": {
+      "precision": 0.7643429981492905,
+      "recall": 0.6546895640686922,
+      "f1": 0.7052796356909065,
+      "support": 3785
+    },
+    "LOW": {
+      "precision": 0.7962398816259031,
+      "recall": 0.8070577856197618,
+      "f1": 0.8016123378899405,
+      "support": 11335
+    },
+    "MEDIUM": {
+      "precision": 0.34523408555069046,
+      "recall": 0.39728682170542634,
+      "f1": 0.3694359344025951,
+      "support": 2580
+    }
+  },
+  "confusion_matrix": [
+    [
+      2478,
+      980,
+      327
+    ],
+    [
+      570,
+      9148,
+      1617
+    ],
+    [
+      194,
+      1361,
+      1025
+    ]
+  ],
+  "labels": [
+    "CRITICAL",
+    "LOW",
+    "MEDIUM"
+  ],
+  "confidence_note": "decision-score-derived confidence, not a calibrated probability"
+}

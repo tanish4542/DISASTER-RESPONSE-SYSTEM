@@ -109,3 +109,7 @@ Thumbs.db
 *.bak
 *.swp
 .tmp/
+
+# Local ML datasets and processed training exports
+ml/data/raw/
+ml/data/processed/

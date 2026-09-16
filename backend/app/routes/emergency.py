@@ -1,4 +1,5 @@
 """Emergency API routes."""
+import logging
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional, Literal
@@ -6,6 +7,9 @@ from app.database import get_db
 from app.models.emergency import Emergency
 from app.schemas.emergency import EmergencyCreate, EmergencyUpdate, EmergencyResponse
 from app.services.priority import calculate_priority
+from app.services.nlp_service import analyze_message
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["emergencies"])
 
@@ -19,6 +23,17 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
         fire=emergency_data.fire,
         medical_emergency=emergency_data.medical_emergency,
     )
+    ai_results = {
+        "ai_relevant": None,
+        "ai_relevance_confidence": None,
+        "ai_urgency": None,
+        "ai_urgency_confidence": None,
+    }
+    try:
+        ai_results = analyze_message(emergency_data.message)
+    except Exception:
+        logger.exception("NLP analysis failed; storing emergency without AI fields")
+
     db_emergency = Emergency(
         message=emergency_data.message,
         latitude=emergency_data.latitude,
@@ -31,6 +46,7 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
         urgency=emergency_data.urgency,
         priority_score=priority_score,
         priority_level=priority_level,
+        **ai_results,
         status="PENDING",
     )
     db.add(db_emergency)

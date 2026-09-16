@@ -44,6 +44,21 @@ def init_db():
         column['name']: column
         for column in inspect(engine).get_columns('emergencies')
     }
+    optional_ai_columns = {
+        "ai_relevant": "BOOLEAN",
+        "ai_relevance_confidence": "FLOAT",
+        "ai_urgency": "VARCHAR",
+        "ai_urgency_confidence": "FLOAT",
+    }
+    with engine.begin() as connection:
+        for column_name, column_type in optional_ai_columns.items():
+            if column_name not in emergency_columns:
+                connection.execute(
+                    text(f"ALTER TABLE emergencies ADD COLUMN {column_name} {column_type}")
+                )
+    emergency_columns = {
+        column["name"]: column for column in inspect(engine).get_columns("emergencies")
+    }
     if emergency_columns['latitude']['nullable'] and emergency_columns['longitude']['nullable']:
         return
 
