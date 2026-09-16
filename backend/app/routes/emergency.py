@@ -13,6 +13,30 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["emergencies"])
 
+
+def populate_missing_ai_analysis(emergencies, db):
+    changed = False
+    for emergency in emergencies:
+        if emergency.ai_relevant is not None and emergency.ai_urgency is not None:
+            continue
+
+        try:
+            ai_results = analyze_message(emergency.message)
+        except Exception:
+            logger.exception("NLP analysis failed while loading emergency %s", emergency.id)
+            continue
+
+        for field, value in ai_results.items():
+            setattr(emergency, field, value)
+        changed = True
+
+    if changed:
+        db.commit()
+        for emergency in emergencies:
+            db.refresh(emergency)
+
+    return emergencies
+
 @router.post("/emergencies", response_model=EmergencyResponse, status_code=201)
 def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_db)):
     priority_score, priority_level = calculate_priority(
@@ -72,14 +96,14 @@ def list_emergencies(
     if priority_level:
         query = query.filter(Emergency.priority_level == priority_level)
     emergencies = query.order_by(Emergency.created_at.desc()).all()
-    return emergencies
+    return populate_missing_ai_analysis(emergencies, db)
 
 @router.get("/emergencies/{emergency_id}", response_model=EmergencyResponse)
 def get_emergency(emergency_id: int, db: Session = Depends(get_db)):
     emergency = db.query(Emergency).filter(Emergency.id == emergency_id).first()
     if not emergency:
         raise HTTPException(status_code=404, detail="Emergency not found")
-    return emergency
+    return populate_missing_ai_analysis([emergency], db)[0]
 
 @router.patch("/emergencies/{emergency_id}/status", response_model=EmergencyResponse)
 def update_emergency_status(emergency_id: int, update_data: EmergencyUpdate, db: Session = Depends(get_db)):
