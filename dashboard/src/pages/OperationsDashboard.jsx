@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import '../operations.css';
-import { getEmergencies, updateEmergencyStatus } from '../services/api';
+import { getEmergencies, updateEmergencyCategory, updateEmergencyStatus } from '../services/api';
 import EmergencyMap from '../components/EmergencyMap';
 import CommunicationDemo from '../components/CommunicationDemo';
 import BrandMark from '../components/BrandMark';
@@ -9,6 +9,12 @@ import { PRODUCT_LINE, PRODUCT_NAME } from '../brand';
 
 const STATUS_OPTIONS = ['PENDING', 'ACKNOWLEDGED', 'IN_PROGRESS', 'RESOLVED'];
 const PRIORITY_FILTERS = ['ALL', 'CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
+const CATEGORY_OPTIONS = [
+  'NATURAL DISASTER',
+  'HEALTH / SOCIETAL',
+  'INFRASTRUCTURE / TRANSPORT',
+  'OTHER',
+];
 
 function OperationsDashboard() {
   const [emergencies, setEmergencies] = useState([]);
@@ -83,12 +89,31 @@ function OperationsDashboard() {
     }
   };
 
+  const handleCategoryChange = async (id, nextCategory) => {
+    setSavingId(id);
+    setStatusMessage('');
+
+    try {
+      await updateEmergencyCategory(id, nextCategory);
+      await loadEmergencies();
+      setStatusMessage(`Category updated to ${nextCategory}.`);
+    } catch (updateError) {
+      setStatusMessage('Unable to update emergency category.');
+    } finally {
+      setSavingId(null);
+    }
+  };
+
   const priorityClass = (priority) => `priority-badge ${String(priority || 'LOW').toLowerCase()}`;
   const confidenceLabel = (value) => (
     typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—'
   );
   const relevanceLabel = (value) => (
     value === true ? 'Relevant' : value === false ? 'Not Relevant' : 'Unavailable'
+  );
+  const typeLabel = (value) => value ? String(value).replaceAll('_', ' ').toUpperCase() : 'Unavailable';
+  const categoryLabel = (emergency) => (
+    emergency.operational_category || (emergency.classification_review_required ? 'Manual review required' : 'Unavailable')
   );
   const statusFailed = statusMessage === 'Unable to update emergency status.';
 
@@ -188,11 +213,15 @@ function OperationsDashboard() {
               >
                 <div className="card-toprow">
                   <span className="id-chip">#{emergency.id}</span>
-                  <span className={priorityClass(emergency.priority_level)}>{emergency.priority_level}</span>
+                  <span className="category-badge">{categoryLabel(emergency)}</span>
+                </div>
+                <div className="card-ai-row">
+                  <strong>{typeLabel(emergency.ai_disaster_type)}</strong>
+                  <span>AI confidence: {confidenceLabel(emergency.ai_disaster_type_confidence)}</span>
                 </div>
                 <p className="card-message">{emergency.message}</p>
                 <div className="meta-row">
-                  <span>Score: {emergency.priority_score}</span>
+                  <span>Priority: {emergency.priority_level} · Score: {emergency.priority_score}</span>
                   <span>{emergency.status}</span>
                 </div>
                 <div className="meta-row muted">
@@ -214,48 +243,83 @@ function OperationsDashboard() {
                 </div>
 
                 <div className="detail-block">
-                  <h3>Incident</h3>
+                  <h3>EMERGENCY</h3>
                   <p>{selectedEmergency.message}</p>
+                  <small>Created {new Date(selectedEmergency.created_at).toLocaleString()} · Updated {new Date(selectedEmergency.updated_at).toLocaleString()}</small>
                 </div>
 
-                <div className="detail-grid">
-                  <div><span>Priority Score</span><strong>{selectedEmergency.priority_score}</strong></div>
-                  <div><span>People Affected</span><strong>{selectedEmergency.people_affected}</strong></div>
-                  <div><span>Injured</span><strong>{selectedEmergency.injured ? 'Yes' : 'No'}</strong></div>
-                  <div><span>Trapped</span><strong>{selectedEmergency.trapped ? 'Yes' : 'No'}</strong></div>
-                  <div><span>Fire</span><strong>{selectedEmergency.fire ? 'Yes' : 'No'}</strong></div>
-                  <div><span>Medical</span><strong>{selectedEmergency.medical_emergency ? 'Yes' : 'No'}</strong></div>
-                  <div><span>Latitude</span><strong>{selectedEmergency.latitude ?? 'N/A'}</strong></div>
-                  <div><span>Longitude</span><strong>{selectedEmergency.longitude ?? 'N/A'}</strong></div>
-                  <div><span>Created</span><strong>{new Date(selectedEmergency.created_at).toLocaleString()}</strong></div>
-                </div>
+                <section className="detail-section">
+                  <h3>LOCATION</h3>
+                  <div className="detail-grid">
+                    <div><span>Latitude</span><strong>{selectedEmergency.latitude ?? 'Location unavailable'}</strong></div>
+                    <div><span>Longitude</span><strong>{selectedEmergency.longitude ?? 'Location unavailable'}</strong></div>
+                  </div>
+                  {selectedEmergency.latitude != null && selectedEmergency.longitude != null ? (
+                    <p className="detail-note">Location is shown on the incident map above.</p>
+                  ) : null}
+                </section>
 
-                <section className="ai-analysis" aria-labelledby="ai-analysis-heading">
+                <section className="detail-section">
+                  <h3>IMPACT</h3>
+                  <div className="detail-grid">
+                    <div><span>People Affected</span><strong>{selectedEmergency.people_affected}</strong></div>
+                    <div><span>Injured</span><strong>{selectedEmergency.injured ? 'Yes' : 'No'}</strong></div>
+                    <div><span>Trapped</span><strong>{selectedEmergency.trapped ? 'Yes' : 'No'}</strong></div>
+                    <div><span>Fire</span><strong>{selectedEmergency.fire ? 'Yes' : 'No'}</strong></div>
+                    <div><span>Medical Emergency</span><strong>{selectedEmergency.medical_emergency ? 'Yes' : 'No'}</strong></div>
+                  </div>
+                </section>
+
+                <section className="detail-section ai-analysis" aria-labelledby="ai-analysis-heading">
                   <div className="ai-analysis-header">
                     <h3 id="ai-analysis-heading">AI ANALYSIS</h3>
-                    <span>Supporting information</span>
+                    <span>{selectedEmergency.classification_source || 'Unavailable'}</span>
                   </div>
                   <div className="ai-analysis-grid">
-                    <div>
-                      <span>Relevance</span>
-                      <strong>{relevanceLabel(selectedEmergency.ai_relevant)}</strong>
+                    <div><span>Category</span><strong>{categoryLabel(selectedEmergency)}</strong></div>
+                    <div><span>AI Disaster Type</span><strong>{typeLabel(selectedEmergency.ai_disaster_type)}</strong></div>
+                    <div><span>AI Confidence</span><strong>{confidenceLabel(selectedEmergency.ai_disaster_type_confidence)}</strong></div>
+                    <div><span>Classification source</span><strong>{selectedEmergency.classification_source || 'Unavailable'}</strong></div>
+                    <div><span>Manual review</span><strong>{selectedEmergency.classification_review_required ? 'Required' : 'No'}</strong></div>
+                    <div><span>AI Urgency</span><strong>{selectedEmergency.ai_urgency ?? 'Unavailable'}</strong></div>
+                    <div><span>Urgency confidence</span><strong>{confidenceLabel(selectedEmergency.ai_urgency_confidence)}</strong></div>
+                    <div><span>Relevance</span><strong>{relevanceLabel(selectedEmergency.ai_relevant)}</strong></div>
+                    <div><span>Relevance confidence</span><strong>{confidenceLabel(selectedEmergency.ai_relevance_confidence)}</strong></div>
+                  </div>
+                  <div className="ai-reason">
+                    <strong>Why this classification?</strong>
+                    <p>{selectedEmergency.ai_classification_reason || 'Unavailable'}</p>
+                  </div>
+                  {selectedEmergency.classification_review_required ? (
+                    <div className="manual-review">
+                      <strong>AI CLASSIFICATION REQUIRES REVIEW</strong>
+                      <p>Select the operational category for this emergency.</p>
                     </div>
-                    <div>
-                      <span>Model confidence</span>
-                      <strong>{confidenceLabel(selectedEmergency.ai_relevance_confidence)}</strong>
-                    </div>
-                    <div>
-                      <span>AI Urgency</span>
-                      <strong>{selectedEmergency.ai_urgency ?? 'Unavailable'}</strong>
-                    </div>
-                    <div>
-                      <span>Decision confidence</span>
-                      <strong>{confidenceLabel(selectedEmergency.ai_urgency_confidence)}</strong>
-                    </div>
+                  ) : null}
+                  <div className="category-actions">
+                    {CATEGORY_OPTIONS.map((category) => (
+                      <button
+                        key={category}
+                        type="button"
+                        className={selectedEmergency.operational_category === category ? 'category-button selected' : 'category-button'}
+                        onClick={() => handleCategoryChange(selectedEmergency.id, category)}
+                        disabled={savingId === selectedEmergency.id}
+                      >
+                        {category}
+                      </button>
+                    ))}
                   </div>
                   <p className="ai-analysis-note">
-                    AI Urgency is analysis only. Priority remains the existing rescue priority.
+                    AI classification and urgency are analysis. Priority score and level remain the existing rescue priority.
                   </p>
+                </section>
+
+                <section className="detail-section">
+                  <h3>PRIORITY</h3>
+                  <div className="detail-grid">
+                    <div><span>Priority Score</span><strong>{selectedEmergency.priority_score}</strong></div>
+                    <div><span>Priority Level</span><strong>{selectedEmergency.priority_level}</strong></div>
+                  </div>
                 </section>
 
                 <div className="status-control">
@@ -271,6 +335,7 @@ function OperationsDashboard() {
                     ))}
                   </select>
                 </div>
+                <p className="detail-note">Current status: {selectedEmergency.status}</p>
               </>
             ) : (
               <div className="state-box">Select an emergency to view details.</div>

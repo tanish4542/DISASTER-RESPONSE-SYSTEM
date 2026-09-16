@@ -35,6 +35,24 @@ class Classifier:
         shifted = scores - np.max(scores)
         probabilities = np.exp(shifted) / np.exp(shifted).sum()
         selected_index = classes.index(label)
+        evidence_terms = []
+        try:
+            features = self.pipeline.named_steps["tfidf"].get_feature_names_out()
+            vector = self.pipeline.named_steps["tfidf"].transform([normalized])
+            coefficients = self.pipeline.named_steps["classifier"].coef_
+            if len(classes) == 2 and coefficients.shape[0] == 1:
+                weights = coefficients[0] if selected_index == 1 else -coefficients[0]
+            else:
+                weights = coefficients[selected_index]
+            contributions = vector.multiply(weights).toarray().ravel()
+            ranked = np.argsort(contributions)[::-1]
+            evidence_terms = [
+                str(features[index])
+                for index in ranked
+                if contributions[index] > 0 and vector[0, index] > 0
+            ][:5]
+        except (KeyError, IndexError, ValueError):
+            evidence_terms = []
         return {
             "label": label,
             "confidence": float(probabilities[selected_index]),
@@ -42,5 +60,6 @@ class Classifier:
             "confidence_method": "NON-CALIBRATED softmax-normalized SVM decision score",
             "model_version": self.model_version,
             "normalized_text": normalized,
+            "evidence_terms": evidence_terms,
             "inferred_at": datetime.now(timezone.utc).isoformat(),
         }

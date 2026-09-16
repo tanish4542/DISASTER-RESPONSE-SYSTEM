@@ -43,3 +43,10 @@ export async function updateEmergencyStatus(id, status) {
     body: JSON.stringify({ status }),
   });
 }
+
+export async function updateEmergencyCategory(id, operational_category) {
+  return request(`/api/emergencies/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ operational_category }),
+  });
+}

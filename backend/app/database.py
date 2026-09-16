@@ -49,6 +49,12 @@ def init_db():
         "ai_relevance_confidence": "FLOAT",
         "ai_urgency": "VARCHAR",
         "ai_urgency_confidence": "FLOAT",
+        "ai_disaster_type": "VARCHAR",
+        "ai_disaster_type_confidence": "FLOAT",
+        "operational_category": "VARCHAR",
+        "classification_source": "VARCHAR",
+        "classification_review_required": "BOOLEAN",
+        "ai_classification_reason": "VARCHAR",
     }
     with engine.begin() as connection:
         for column_name, column_type in optional_ai_columns.items():
@@ -71,12 +77,20 @@ def init_db():
             INSERT INTO emergencies (
                 id, message, latitude, longitude, people_affected, injured,
                 trapped, fire, medical_emergency, urgency, priority_score,
-                priority_level, status, created_at, updated_at
+                priority_level, ai_relevant, ai_relevance_confidence,
+                ai_urgency, ai_urgency_confidence, ai_disaster_type,
+                ai_disaster_type_confidence, operational_category,
+                classification_source, classification_review_required,
+                ai_classification_reason, status, created_at, updated_at
             )
             SELECT
                 id, message, latitude, longitude, people_affected, injured,
                 trapped, fire, medical_emergency, urgency, priority_score,
-                priority_level, status, created_at, updated_at
+                priority_level, ai_relevant, ai_relevance_confidence,
+                ai_urgency, ai_urgency_confidence, ai_disaster_type,
+                ai_disaster_type_confidence, operational_category,
+                classification_source, classification_review_required,
+                ai_classification_reason, status, created_at, updated_at
             FROM emergencies_old
         '''))
         connection.execute(text('DROP TABLE emergencies_old'))

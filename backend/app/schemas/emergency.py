@@ -22,6 +22,12 @@ class EmergencyCreate(BaseModel):
 
 class EmergencyUpdate(BaseModel):
     status: Optional[Literal["PENDING", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED"]] = None
+    operational_category: Optional[Literal[
+        "NATURAL DISASTER",
+        "HEALTH / SOCIETAL",
+        "INFRASTRUCTURE / TRANSPORT",
+        "OTHER",
+    ]] = None
     message: Optional[str] = Field(None, min_length=1, max_length=500)
     
     @field_validator('message')
@@ -47,6 +53,17 @@ class EmergencyResponse(BaseModel):
     ai_relevance_confidence: Optional[float] = None
     ai_urgency: Optional[str] = None
     ai_urgency_confidence: Optional[float] = None
+    ai_disaster_type: Optional[str] = None
+    ai_disaster_type_confidence: Optional[float] = None
+    operational_category: Optional[Literal[
+        "NATURAL DISASTER",
+        "HEALTH / SOCIETAL",
+        "INFRASTRUCTURE / TRANSPORT",
+        "OTHER",
+    ]] = None
+    classification_source: Optional[Literal["AI", "MANUAL_REVIEW", "MANUAL"]] = None
+    classification_review_required: Optional[bool] = None
+    ai_classification_reason: Optional[str] = None
     status: Literal["PENDING", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED"]
     created_at: datetime
     updated_at: datetime

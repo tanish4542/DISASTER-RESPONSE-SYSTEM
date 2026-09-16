@@ -28,6 +28,12 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
         "ai_relevance_confidence": None,
         "ai_urgency": None,
         "ai_urgency_confidence": None,
+        "ai_disaster_type": None,
+        "ai_disaster_type_confidence": None,
+        "operational_category": None,
+        "classification_source": None,
+        "classification_review_required": None,
+        "ai_classification_reason": None,
     }
     try:
         ai_results = analyze_message(emergency_data.message)
@@ -82,6 +88,10 @@ def update_emergency_status(emergency_id: int, update_data: EmergencyUpdate, db:
         raise HTTPException(status_code=404, detail="Emergency not found")
     if update_data.status is not None:
         emergency.status = update_data.status
+    if update_data.operational_category is not None:
+        emergency.operational_category = update_data.operational_category
+        emergency.classification_source = "MANUAL"
+        emergency.classification_review_required = False
     if update_data.message is not None:
         emergency.message = update_data.message
     db.commit()
