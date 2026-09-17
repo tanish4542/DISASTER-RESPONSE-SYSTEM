@@ -1,0 +1,222 @@
+{
+  "dataset": "ml/data/experimental/rescue_priority_v3.csv",
+  "panel": "ml/data/experimental/rescue_priority_panel_test.csv",
+  "model": "ml/models/experimental/priority_experimental_v3.joblib",
+  "group_counts": {
+    "train": 140,
+    "validation": 30,
+    "test": 30
+  },
+  "validation": {
+    "split": "validation",
+    "rows": 600,
+    "accuracy": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "macro_f1": 1.0,
+    "weighted_f1": 1.0,
+    "per_class": {
+      "CRITICAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 40
+      },
+      "HIGH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 140
+      },
+      "MEDIUM": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 220
+      },
+      "LOW": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 200
+      }
+    },
+    "confusion_matrix": [
+      [
+        40,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        140,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        220,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        200
+      ]
+    ],
+    "labels": [
+      "CRITICAL",
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ],
+    "critical_to_low_errors": 0,
+    "high_to_low_errors": 0
+  },
+  "test": {
+    "split": "test",
+    "rows": 600,
+    "accuracy": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "macro_f1": 1.0,
+    "weighted_f1": 1.0,
+    "per_class": {
+      "CRITICAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 180
+      },
+      "HIGH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 140
+      },
+      "MEDIUM": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 120
+      },
+      "LOW": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 160
+      }
+    },
+    "confusion_matrix": [
+      [
+        180,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        140,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        120,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        160
+      ]
+    ],
+    "labels": [
+      "CRITICAL",
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ],
+    "critical_to_low_errors": 0,
+    "high_to_low_errors": 0
+  },
+  "panel_test": {
+    "split": "panel_test",
+    "rows": 240,
+    "accuracy": 1.0,
+    "macro_precision": 1.0,
+    "macro_recall": 1.0,
+    "macro_f1": 1.0,
+    "weighted_f1": 1.0,
+    "per_class": {
+      "CRITICAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "HIGH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "MEDIUM": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      },
+      "LOW": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 60
+      }
+    },
+    "confusion_matrix": [
+      [
+        60,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        60,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        60,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        60
+      ]
+    ],
+    "labels": [
+      "CRITICAL",
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ],
+    "critical_to_low_errors": 0,
+    "high_to_low_errors": 0
+  },
+  "limitations": [
+    "Controlled synthetic English data; candidate model only.",
+    "LinearSVC scores are non-calibrated and are not probabilities.",
+    "No production, backend, V2, safety, relevance, mobile, communication, or dashboard artifact changed."
+  ]
+}

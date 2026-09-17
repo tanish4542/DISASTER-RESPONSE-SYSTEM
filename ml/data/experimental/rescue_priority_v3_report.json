@@ -1,0 +1,47 @@
+{
+  "dataset": "ml/data/experimental/rescue_priority_v3.csv",
+  "rows": 4000,
+  "class_distribution": {
+    "LOW": 1000,
+    "MEDIUM": 1000,
+    "HIGH": 1000,
+    "CRITICAL": 1000
+  },
+  "event_groups": 200,
+  "split_rows": {
+    "train": 2800,
+    "validation": 600,
+    "test": 600
+  },
+  "split_groups": {
+    "train": 140,
+    "validation": 30,
+    "test": 30
+  },
+  "panel_rows": 240,
+  "panel_class_distribution": {
+    "CRITICAL": 60,
+    "HIGH": 60,
+    "MEDIUM": 60,
+    "LOW": 60
+  },
+  "required_columns": [
+    "id",
+    "message",
+    "priority_label",
+    "disaster_type",
+    "injured",
+    "trapped",
+    "fire",
+    "medical_emergency",
+    "people_affected",
+    "urgency",
+    "scenario_family",
+    "event_id",
+    "source_type",
+    "annotation_reason",
+    "language",
+    "split"
+  ],
+  "synthetic": true
+}
