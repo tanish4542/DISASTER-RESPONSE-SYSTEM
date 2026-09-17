@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import '../operations.css';
-import { getEmergency, updateEmergencyCategory, updateEmergencyPriority, updateEmergencyStatus } from '../services/api';
+import { getEmergency, updateEmergencyPriority, updateEmergencyStatus } from '../services/api';
 import EmergencyMap from '../components/EmergencyMap';
 
 const STATUS_OPTIONS = ['PENDING', 'ACKNOWLEDGED', 'IN_PROGRESS', 'RESOLVED'];
-const CATEGORY_OPTIONS = ['NATURAL DISASTER', 'HEALTH / SOCIETAL', 'INFRASTRUCTURE / TRANSPORT', 'OTHER'];
 const PRIORITY_OPTIONS = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
 const confidenceLabel = (value) => (
   typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—'
@@ -13,8 +12,8 @@ const displayValue = (value, fallback = 'Legacy / Not analyzed') => value ?? fal
 const hasCurrentAiAnalysis = (emergency) => Boolean(emergency.priority_classification_source);
 const isNotActionable = (emergency) => (
   hasCurrentAiAnalysis(emergency)
-  && (emergency.classification_source === 'NOT_RELEVANT'
-    || emergency.classification_source === 'LOW_RELEVANCE_CONFIDENCE')
+  && emergency.ai_priority == null
+  && !emergency.operational_safety_processing
 );
 const finalPriorityExplanation = (emergency) => {
   if (emergency.priority_classification_review_required) {
@@ -37,9 +36,7 @@ export default function EmergencyDetails({ id }) {
   const update = async (payload) => {
     setSaving(true);
     try {
-      const updated = payload.operational_category
-        ? await updateEmergencyCategory(id, payload.operational_category)
-        : payload.manual_priority
+      const updated = payload.manual_priority
           ? await updateEmergencyPriority(id, payload.manual_priority)
         : await updateEmergencyStatus(id, payload.status);
       setEmergency(updated);
@@ -88,28 +85,19 @@ export default function EmergencyDetails({ id }) {
         </div>
       </section>
       <section className="detail-section ai-analysis">
-        <div className="ai-analysis-header"><h3>AI ANALYSIS</h3><span>{hasCurrentAiAnalysis(emergency) ? displayValue(emergency.classification_source) : 'Legacy / Not analyzed'}</span></div>
+        <div className="ai-analysis-header"><h3>AI ANALYSIS</h3><span>{hasCurrentAiAnalysis(emergency) ? displayValue(emergency.priority_classification_source) : 'Legacy / Not analyzed'}</span></div>
         <div className="ai-analysis-grid">
          <div><span>AI Relevance</span><strong>{!hasCurrentAiAnalysis(emergency) ? 'Legacy / Not analyzed' : emergency.ai_relevant == null ? 'Not analyzed' : emergency.ai_relevant ? 'RELEVANT' : 'NOT RELEVANT'}</strong></div>
          <div><span>Relevance confidence</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_relevance_confidence : null)}</strong></div>
          <div><span>Safety evidence</span><strong>{hasCurrentAiAnalysis(emergency) ? (emergency.emergency_evidence_detected ? 'Detected' : 'Not detected') : 'Legacy / Not analyzed'}</strong></div>
          <div><span>Operational processing</span><strong>{hasCurrentAiAnalysis(emergency) ? (emergency.operational_safety_processing ? 'Emergency evidence detected — analysis continued' : 'Normal relevance processing') : 'Legacy / Not analyzed'}</strong></div>
-          <div><span>Disaster Type</span><strong>{isNotActionable(emergency) ? 'N/A' : hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_disaster_type) : 'Legacy / Not analyzed'}</strong></div>
-          <div><span>Disaster type confidence</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_disaster_type_confidence : null)}</strong></div>
-          <div><span>Disaster category</span><strong>{isNotActionable(emergency) ? 'N/A' : hasCurrentAiAnalysis(emergency) ? displayValue(emergency.operational_category, emergency.classification_review_required ? 'Manual classification required' : undefined) : 'Legacy / Not analyzed'}</strong></div>
-          <div><span>Disaster review required</span><strong>{hasCurrentAiAnalysis(emergency) && emergency.classification_review_required ? 'Yes' : 'No'}</strong></div>
           <div><span>AI Priority</span><strong>{isNotActionable(emergency) ? 'N/A' : hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_priority) : 'Legacy / Not analyzed'}</strong></div>
           <div><span>AI Priority confidence</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_priority_confidence : null)}</strong></div>
           <div><span>Priority source</span><strong>{displayValue(emergency.priority_classification_source)}</strong></div>
           <div><span>Priority review required</span><strong>{emergency.priority_classification_review_required ? 'Yes' : 'No'}</strong></div>
         </div>
-        <div className="ai-reason"><strong>Disaster classification reason</strong><p>{hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_classification_reason) : 'Legacy / Not analyzed'}</p></div>
         <div className="ai-reason"><strong>AI priority reason</strong><p>{hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_priority_reason) : 'Legacy / Not analyzed'}</p></div>
-        {hasCurrentAiAnalysis(emergency) && !isNotActionable(emergency) ? (
-          <div className="category-actions">
-            {CATEGORY_OPTIONS.map((category) => <button type="button" className={emergency.operational_category === category ? 'category-button selected' : 'category-button'} key={category} onClick={() => update({ operational_category: category })} disabled={saving}>{category}</button>)}
-          </div>
-        ) : <p className="detail-note">Not relevant or below the operational relevance threshold — no further classification.</p>}
+        {isNotActionable(emergency) ? <p className="detail-note">Not relevant or below the operational relevance threshold — no further classification.</p> : null}
         {emergency.priority_classification_review_required ? (
           <div className="category-actions manual-review">
             <strong>Manual priority review required</strong>
@@ -123,14 +111,13 @@ export default function EmergencyDetails({ id }) {
         <h3>FINAL RESCUE PRIORITY</h3>
         <div className={`priority-summary ${String(emergency.priority_level || '').toLowerCase()}`}>
           <div><span>Final Priority</span><strong>{emergency.priority_classification_review_required ? 'Pending Manual Review' : emergency.priority_level}</strong></div>
-          <div><span>Priority Score</span><strong>{emergency.priority_score}</strong></div>
         </div>
         <div className="detail-grid">
           <div><span>Urgency input</span><strong>{emergency.urgency}</strong></div>
         </div>
         <p className="detail-note">{finalPriorityExplanation(emergency)}</p>
         <p className="detail-note">Safety protection applied: {emergency.safety_protection_applied ? 'Yes' : 'No'}</p>
-        <p className="detail-note">Final rescue priority is calculated deterministically from the SOS impact fields and urgency input.</p>
+        <p className="detail-note">Final rescue priority follows the V2 AI priority category, with explicit safety protection where required.</p>
       </section>
       <section className="status-control">
         <label htmlFor="detail-status">Current status</label>

@@ -2,9 +2,6 @@ import { useEffect, useState } from 'react';
 import { getEmergencies } from '../services/api';
 import { PRODUCT_LINE, PRODUCT_NAME } from '../brand';
 
-const confidenceLabel = (value) => (
-  typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—'
-);
 
 export default function ResolvedEmergencies() {
   const [emergencies, setEmergencies] = useState([]);
@@ -43,11 +40,10 @@ export default function ResolvedEmergencies() {
               </div>
               <p>{emergency.message}</p>
               <div className="meta-row">
-                <span>{hasCurrentAiAnalysis(emergency) ? emergency.operational_category || 'Manual classification required' : 'Legacy / Not analyzed'}</span>
-                <span>Score: {emergency.priority_score}</span>
+                <span>{hasCurrentAiAnalysis(emergency) ? 'AI priority analysis' : 'Legacy / Not analyzed'}</span>
               </div>
               <div className="meta-row muted">
-                <span>{hasCurrentAiAnalysis(emergency) ? `${emergency.ai_disaster_type || 'Not applicable'} · AI confidence ${confidenceLabel(emergency.ai_disaster_type_confidence)}` : 'Legacy / Not analyzed'}</span>
+                <span>{emergency.final_priority_reason || 'Final priority reason unavailable'}</span>
                 <span>Updated {new Date(emergency.updated_at).toLocaleString()}</span>
               </div>
             </a>

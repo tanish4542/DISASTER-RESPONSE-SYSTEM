@@ -90,7 +90,6 @@ export default function EmergencyMap({ emergencies, onSelectEmergency }) {
                     <span className={`priority-badge ${priority.toLowerCase()}`}>{priority}</span>
                     <p>{emergency.message}</p>
                     <dl>
-                      <div><dt>Score</dt><dd>{emergency.priority_score}</dd></div>
                       <div><dt>People</dt><dd>{emergency.people_affected}</dd></div>
                       <div><dt>Injured</dt><dd>{emergency.injured ? 'Yes' : 'No'}</dd></div>
                       <div><dt>Trapped</dt><dd>{emergency.trapped ? 'Yes' : 'No'}</dd></div>

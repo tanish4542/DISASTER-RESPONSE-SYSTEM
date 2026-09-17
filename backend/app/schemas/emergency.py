@@ -22,12 +22,6 @@ class EmergencyCreate(BaseModel):
 
 class EmergencyUpdate(BaseModel):
     status: Optional[Literal["PENDING", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED"]] = None
-    operational_category: Optional[Literal[
-        "NATURAL DISASTER",
-        "HEALTH / SOCIETAL",
-        "INFRASTRUCTURE / TRANSPORT",
-        "OTHER",
-    ]] = None
     manual_priority: Optional[Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]] = None
     message: Optional[str] = Field(None, min_length=1, max_length=500)
     
@@ -48,12 +42,9 @@ class EmergencyResponse(BaseModel):
     fire: bool
     medical_emergency: bool
     urgency: int
-    priority_score: int
     priority_level: Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]
     ai_relevant: Optional[bool] = None
     ai_relevance_confidence: Optional[float] = None
-    ai_urgency: Optional[str] = None
-    ai_urgency_confidence: Optional[float] = None
     ai_priority: Optional[Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]] = None
     ai_priority_confidence: Optional[float] = None
     priority_classification_source: Optional[Literal[
@@ -65,23 +56,6 @@ class EmergencyResponse(BaseModel):
     operational_safety_processing: Optional[bool] = None
     safety_protection_applied: Optional[bool] = None
     final_priority_reason: Optional[str] = None
-    ai_disaster_type: Optional[str] = None
-    ai_disaster_type_confidence: Optional[float] = None
-    operational_category: Optional[Literal[
-        "NATURAL DISASTER",
-        "HEALTH / SOCIETAL",
-        "INFRASTRUCTURE / TRANSPORT",
-        "OTHER",
-    ]] = None
-    classification_source: Optional[Literal[
-        "AI",
-        "MANUAL_REVIEW",
-        "MANUAL",
-        "NOT_RELEVANT",
-        "LOW_RELEVANCE_CONFIDENCE",
-    ]] = None
-    classification_review_required: Optional[bool] = None
-    ai_classification_reason: Optional[str] = None
     status: Literal["PENDING", "ACKNOWLEDGED", "IN_PROGRESS", "RESOLVED"]
     created_at: datetime
     updated_at: datetime

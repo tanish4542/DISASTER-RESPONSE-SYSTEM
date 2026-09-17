@@ -4,7 +4,6 @@ import pandas as pd
 import pytest
 
 from ml.src.inference import Classifier
-from ml.src.inference.urgency import UrgencyClassifier
 from ml.src.preprocessing import normalize_text
 from ml.src.training import DatasetError, load_labeled_csv, train_from_csv
 
@@ -104,25 +103,3 @@ def test_saved_model_loading_and_prediction_consistency(trained_model):
     second = Classifier(trained_model).predict("flood water rescue")
     assert first["label"] == second["label"]
     assert first["decision_score"] == second["decision_score"]
-
-
-@pytest.fixture
-def urgency_classifier():
-    return UrgencyClassifier(Path("ml/models/urgency_experimental.joblib"))
-
-
-def test_urgency_smoke_does_not_trigger_safety_override(urgency_classifier):
-    result = urgency_classifier.predict("There is smoke visible in the distance.")
-    assert result["safety_override"] is False
-
-
-def test_urgency_trapped_people_trigger_critical_override(urgency_classifier):
-    result = urgency_classifier.predict("People are trapped inside and need rescue.")
-    assert result["urgency"] == "CRITICAL"
-    assert result["safety_override"] is True
-
-
-def test_urgency_injured_person_needing_help_triggers_critical_override(urgency_classifier):
-    result = urgency_classifier.predict("An injured person needs immediate help.")
-    assert result["urgency"] == "CRITICAL"
-    assert result["safety_override"] is True

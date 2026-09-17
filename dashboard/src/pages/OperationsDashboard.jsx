@@ -79,14 +79,6 @@ function OperationsDashboard() {
   const safetyElevation = (emergency) => (
     emergency.safety_protection_applied ? emergency.final_priority_reason : null
   );
-  const typeLabel = (value) => value ? String(value).replaceAll('_', ' ').toUpperCase() : 'Not analyzed';
-  const categoryLabel = (emergency) => (
-    hasCurrentAiAnalysis(emergency) && emergency.operational_category
-      || (emergency.classification_review_required
-        && hasCurrentAiAnalysis(emergency)
-        ? 'Manual review required'
-        : hasCurrentAiAnalysis(emergency) && emergency.classification_source === 'NOT_RELEVANT' ? 'N/A' : 'Legacy / Not analyzed')
-  );
 
   return (
     <div className="dashboard-shell">
@@ -180,7 +172,7 @@ function OperationsDashboard() {
               >
                 <div className="card-toprow">
                   <span className="id-chip">#{emergency.id}</span>
-                  <span className="category-badge">{categoryLabel(emergency)}</span>
+                  <span className="category-badge">{emergency.operational_safety_processing ? 'Safety processing' : 'Emergency'}</span>
                 </div>
                 <div className="card-ai-row">
                   <strong>AI Priority: {aiPriorityLabel(emergency)}</strong>
@@ -190,12 +182,11 @@ function OperationsDashboard() {
                   <div className="review-banner">Manual priority review required</div>
                 ) : null}
                 <div className="meta-row muted">
-                  <span>Disaster type: {typeLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_disaster_type : null)} · {confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_disaster_type_confidence : null)}</span>
                   <span>Source: {prioritySourceLabel(emergency)}</span>
                 </div>
                 <p className="card-message">{emergency.message}</p>
                 <div className="meta-row">
-                  <span>{finalPriorityLabel(emergency)} · Score: {emergency.priority_score}</span>
+                  <span>{finalPriorityLabel(emergency)}</span>
                   <span>{emergency.status}</span>
                 </div>
                 {safetyElevation(emergency) ? <div className="review-banner">{safetyElevation(emergency)}</div> : null}

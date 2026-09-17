@@ -49,13 +49,6 @@ export async function updateEmergencyStatus(id, status) {
   });
 }
 
-export async function updateEmergencyCategory(id, operational_category) {
-  return request(`/api/emergencies/${id}/status`, {
-    method: 'PATCH',
-    body: JSON.stringify({ operational_category }),
-  });
-}
-
 export async function updateEmergencyPriority(id, manual_priority) {
   return request(`/api/emergencies/${id}/status`, {
     method: 'PATCH',
