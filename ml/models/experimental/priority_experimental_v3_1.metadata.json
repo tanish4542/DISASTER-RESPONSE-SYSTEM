@@ -1,0 +1,24 @@
+{
+  "dataset": "ml/data/experimental/rescue_priority_v3.csv",
+  "model": "ml/models/experimental/priority_experimental_v3_1.joblib",
+  "features": [
+    "message"
+  ],
+  "excluded_structured_fields": [
+    "injured",
+    "trapped",
+    "fire",
+    "medical_emergency",
+    "people_affected",
+    "urgency"
+  ],
+  "classes": [
+    "CRITICAL",
+    "HIGH",
+    "MEDIUM",
+    "LOW"
+  ],
+  "train_rows": 2800,
+  "reason": "V3 structured fields are jointly assigned by label-defined synthetic scenarios.",
+  "confidence": "LinearSVC decision score; non-calibrated"
+}
