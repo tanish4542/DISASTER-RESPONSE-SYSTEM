@@ -1,0 +1,245 @@
+text,label,group_id
+I am trapped inside my house,relevant,pair-001
+The rescue drill had people pretending to be trapped inside the house,not_relevant,pair-001
+my leg is injured and i need help now,relevant,pair-002
+My friend hurt his leg last week and is fine now,not_relevant,pair-002
+There is a fire in my building and I need help,relevant,pair-003
+I watched a documentary about a building fire,not_relevant,pair-003
+i cannot breathe and need someone to come,relevant,pair-004
+The actor could not breathe in the movie scene,not_relevant,pair-004
+We are stuck and cannot get out,relevant,pair-005
+The hikers were stuck yesterday but reached home safely,not_relevant,pair-005
+Please send rescue to this address,relevant,pair-006
+The rescue team won an award last month,not_relevant,pair-006
+Water is coming into my house,relevant,pair-007
+Water entered the house during a film scene,not_relevant,pair-007
+the road outside is completely blocked and i am stranded,relevant,pair-008
+The road was blocked for a parade yesterday,not_relevant,pair-008
+There is smoke everywhere and my family is inside,relevant,pair-009
+The concert used smoke everywhere for special effects,not_relevant,pair-009
+the building is shaking i dont know what to do,relevant,pair-010
+The building shook during a special-effects test,not_relevant,pair-010
+I don't know how to get out of this place,relevant,pair-011
+The character did not know how to get out in the novel,not_relevant,pair-011
+Power is gone and my elderly parents are inside,relevant,pair-012
+Power was gone at the office but everyone went home,not_relevant,pair-012
+help me im trapped on the upper floor,relevant,pair-013
+The training video shows a person trapped on an upper floor,not_relevant,pair-013
+my child is hurt and we cannot leave,relevant,pair-014
+The child was hurt in a game yesterday and is fine,not_relevant,pair-014
+please come quickly there are people injured here,relevant,pair-015
+The article said people were injured years ago,not_relevant,pair-015
+we need medical assistance at this location,relevant,pair-016
+The clinic advertised medical assistance for routine visits,not_relevant,pair-016
+I am bleeding badly please help,relevant,pair-017
+The film showed a character bleeding badly,not_relevant,pair-017
+my mother fell and cannot stand up,relevant,pair-018
+My mother fell in a comedy and stood up afterward,not_relevant,pair-018
+the flood water is entering our room,relevant,pair-019
+The news report described flood water from last year,not_relevant,pair-019
+we are surrounded by rising water,relevant,pair-020
+The documentary showed a town surrounded by water,not_relevant,pair-020
+the roof collapsed on us,relevant,pair-021
+The roof collapsed in an old video but nobody was there,not_relevant,pair-021
+I am inside the collapsed building,relevant,pair-022
+Engineers discussed a collapsed building in class,not_relevant,pair-022
+there is an active fire next door,relevant,pair-023
+The museum exhibit explained an active fire from history,not_relevant,pair-023
+my apartment is filling with smoke,relevant,pair-024
+The theater apartment set was filling with smoke,not_relevant,pair-024
+I am locked in and cannot escape,relevant,pair-025
+The puzzle game requires players to escape a locked room,not_relevant,pair-025
+send someone we are in danger,relevant,pair-026
+The headline said the explorers were in danger in 2010,not_relevant,pair-026
+my father is unconscious please call responders,relevant,pair-027
+The show had an unconscious character,not_relevant,pair-027
+we need evacuation from this street now,relevant,pair-028
+The city posted an old evacuation plan,not_relevant,pair-028
+the stairs are broken and we cannot leave,relevant,pair-029
+The movie had broken stairs in an abandoned house,not_relevant,pair-029
+I am hurt alone in my room,relevant,pair-030
+The singer said he was hurt by criticism,not_relevant,pair-030
+please help my family is still inside,relevant,pair-031
+The family in the book stayed inside during the storm,not_relevant,pair-031
+there are injured people beside me,relevant,pair-032
+The report discussed injured people from a past event,not_relevant,pair-032
+I have no way out of this flooded house,relevant,pair-033
+The article described a flooded house after the event,not_relevant,pair-033
+my child cannot breathe call for help,relevant,pair-034
+The documentary explained why a child could not breathe,not_relevant,pair-034
+we are cut off and need someone to reach us,relevant,pair-035
+The village was cut off last winter but reopened,not_relevant,pair-035
+fire is spreading toward our home,relevant,pair-036
+The news replay showed fire spreading in another country,not_relevant,pair-036
+i am shaking and scared please come,relevant,pair-037
+The character was shaking before the competition,not_relevant,pair-037
+my wheelchair cannot pass the debris,relevant,pair-038
+The report said a wheelchair passed the debris safely,not_relevant,pair-038
+there is gas and we need to leave immediately,relevant,pair-039
+The lab lesson covered gas and emergency drills,not_relevant,pair-039
+I need rescue from this room,relevant,pair-040
+The rescue organization published its annual report,not_relevant,pair-040
+help us the water is at the door,relevant,pair-041
+The water was at the door in a suspense movie,not_relevant,pair-041
+our building alarm is ringing and smoke is coming in,relevant,pair-042
+The building alarm was tested successfully,not_relevant,pair-042
+i fell and may have broken my arm,relevant,pair-043
+The athlete broke his arm last season and recovered,not_relevant,pair-043
+we cannot contact anyone and need help,relevant,pair-044
+The article said the phones could not contact anyone during a festival,not_relevant,pair-044
+someone is trapped under the fallen wall,relevant,pair-045
+The construction report mentioned someone trapped years ago,not_relevant,pair-045
+the storm damaged our home and we are inside,relevant,pair-046
+The storm damaged homes in a historical report,not_relevant,pair-046
+I am stranded here with no safe exit,relevant,pair-047
+The traveler was stranded briefly but found a safe exit,not_relevant,pair-047
+please get my grandparents out,relevant,pair-048
+The grandparents got out safely in the story,not_relevant,pair-048
+the floor is flooding and we are upstairs,relevant,pair-049
+The floor was flooding in a museum demonstration,not_relevant,pair-049
+there is a serious injury at my location,relevant,pair-050
+The newspaper summarized a serious injury from yesterday,not_relevant,pair-050
+we are stuck in the elevator send help,relevant,pair-051
+The actor was stuck in an elevator in a comedy,not_relevant,pair-051
+i smell smoke and cannot find the exit,relevant,pair-052
+The movie character smelled smoke near an exit,not_relevant,pair-052
+our house is on fire right now,relevant,pair-053
+The documentary covered a house fire from decades ago,not_relevant,pair-053
+I am having a seizure and need an ambulance,relevant,pair-054
+The health article explained seizures in general,not_relevant,pair-054
+the bridge is down and people are stranded here,relevant,pair-055
+The bridge was down for repairs last summer,not_relevant,pair-055
+my baby is ill and we need a doctor now,relevant,pair-056
+The baby in the advertisement was ill in the storyline,not_relevant,pair-056
+there are flames in the hallway,relevant,pair-057
+The news archive showed flames in a hallway,not_relevant,pair-057
+i am lost after the earthquake and cannot reach home,relevant,pair-058
+The earthquake documentary described people who later reached home,not_relevant,pair-058
+we have no food or water and are trapped,relevant,pair-059
+The charity campaign collects food and water,not_relevant,pair-059
+the ceiling is falling please come,relevant,pair-060
+The theater ceiling was falling in a stunt scene,not_relevant,pair-060
+my brother is bleeding and alone,relevant,pair-061
+The book described a brother bleeding after a battle,not_relevant,pair-061
+I cannot move my legs after the crash,relevant,pair-062
+The interviewee could not move his legs before surgery years ago,not_relevant,pair-062
+please answer we are trapped in this room,relevant,pair-063
+The escape-room game says players are trapped in a room,not_relevant,pair-063
+the fire alarm is real and smoke is entering,relevant,pair-064
+The fire alarm test was announced by the school,not_relevant,pair-064
+I need immediate help at my location,relevant,pair-065
+The help desk offers immediate help with homework,not_relevant,pair-065
+someone is drowning near me,relevant,pair-066
+The film scene showed someone drowning,not_relevant,pair-066
+we are under debris and cannot get out,relevant,pair-067
+The report described debris after an old earthquake,not_relevant,pair-067
+the road washed away and our car is stuck,relevant,pair-068
+The road washed away during last year's storm,not_relevant,pair-068
+my chest hurts and i cannot breathe,relevant,pair-069
+The article explained why chest pain can happen,not_relevant,pair-069
+we need responders at the building now,relevant,pair-070
+The responders attended a conference at the building,not_relevant,pair-070
+there is a landslide blocking our only exit,relevant,pair-071
+The documentary showed a landslide blocking a road,not_relevant,pair-071
+i am alone and terrified in the dark building,relevant,pair-072
+The horror movie had a terrified person in a dark building,not_relevant,pair-072
+please evacuate us the water keeps rising,relevant,pair-073
+The city website explains how to evacuate during floods,not_relevant,pair-073
+water is pouring through our doorway and we cannot leave,relevant,pair-074
+The flood article says water once poured through a doorway,not_relevant,pair-074
+the storm washed away the road and we are cut off,relevant,pair-075
+The travel blog says the storm washed away a road last year,not_relevant,pair-075
+I need help getting out of this burning room,relevant,pair-076
+The fire drill teaches students how to get out of a room,not_relevant,pair-076
+my ankle is hurt and I am alone with no transport,relevant,pair-077
+My cousin hurt an ankle last month and is walking normally,not_relevant,pair-077
+please help us the smoke is getting thicker,relevant,pair-078
+The theater used thicker smoke for the final scene,not_relevant,pair-078
+my phone has no signal and the house is filling with water,relevant,pair-079
+The phone review says it has no signal in some houses,not_relevant,pair-079
+we are safe but the flood happened yesterday,relevant,pair-080
+We are safe now after yesterday's flood,not_relevant,pair-080
+I cannot breathe properly and nobody is here,relevant,pair-081
+The health guide explains that some people cannot breathe properly,not_relevant,pair-081
+there is a fire drill at school this afternoon,relevant,pair-082
+The school fire drill was completed without problems,not_relevant,pair-082
+help me carry these books for homework,relevant,pair-083
+Can you help me with my homework tonight,not_relevant,pair-083
+my charger is broken and I need help finding one,relevant,pair-084
+Customer support can help find a phone charger,not_relevant,pair-084
+happy birthday to my brother hope you have fun,relevant,pair-085
+Happy birthday to everyone in the group,not_relevant,pair-085
+the bridge fell and we cannot reach the town,relevant,pair-086
+The bridge was closed for repairs but traffic used another route,not_relevant,pair-086
+I saw a rescue helicopter while watching television,relevant,pair-087
+A rescue helicopter appeared in the documentary,not_relevant,pair-087
+the weather is lovely and the roads are clear,relevant,pair-088
+The weather forecast says the roads will be clear,not_relevant,pair-088
+my sister is locked inside and calling for help,relevant,pair-089
+The game asks players to unlock a sister's room,not_relevant,pair-089
+smoke is entering our apartment and we need out,relevant,pair-090
+The movie shows smoke entering an apartment,not_relevant,pair-090
+the river is around the house and still rising,relevant,pair-091
+A documentary shows a river around a house,not_relevant,pair-091
+I am stuck in traffic but everyone is safe,relevant,pair-092
+The driver was stuck in traffic for ten minutes,not_relevant,pair-092
+my grandmother fell and cannot get up,relevant,pair-093
+The actress fell during rehearsal and got up safely,not_relevant,pair-093
+the building is shaking and the ceiling is cracking,relevant,pair-094
+The building shook during a controlled engineering test,not_relevant,pair-094
+please send help our only exit is blocked,relevant,pair-095
+The website explains how emergency exits are inspected,not_relevant,pair-095
+we need an ambulance for my child right now,relevant,pair-096
+The clinic article describes when children need ambulances,not_relevant,pair-096
+the news says a fire happened in another city,relevant,pair-097
+The news report discussed a fire that was contained yesterday,not_relevant,pair-097
+"I need help right now, the ceiling is coming down",relevant,pair-098
+I need help choosing a color for my bedroom,not_relevant,pair-098
+the water is at our knees and rising fast,relevant,pair-099
+The swimming pool water is at my knees,not_relevant,pair-099
+"please get here, my sister is trapped behind the door",relevant,pair-100
+The video game says my sister is trapped behind a door,not_relevant,pair-100
+our street vanished under mud and we are still here,relevant,pair-101
+The travel article describes a street covered in mud,not_relevant,pair-101
+I am coughing and the room is full of smoke,relevant,pair-102
+The chef says the room was full of smoke while cooking,not_relevant,pair-102
+my son is injured and there is no car to take him,relevant,pair-103
+My son was injured in a match and returned to school,not_relevant,pair-103
+we cannot leave because the flames are outside,relevant,pair-104
+The lesson explains why flames spread outside a building,not_relevant,pair-104
+someone in this house is unconscious,relevant,pair-105
+The television episode had an unconscious person,not_relevant,pair-105
+I have been calling but nobody can reach us,relevant,pair-106
+The phone company says callers could not reach the office,not_relevant,pair-106
+the road is gone and our vehicle cannot move,relevant,pair-107
+The road is gone for construction next week,not_relevant,pair-107
+there is no safe way down from this roof,relevant,pair-108
+The building guide describes a safe way down from a roof,not_relevant,pair-108
+my chest hurts and I am alone here,relevant,pair-109
+The doctor wrote about chest pain in a general guide,not_relevant,pair-109
+we are surrounded by floodwater and need a boat,relevant,pair-110
+The harbor rents boats for floodwater photography,not_relevant,pair-110
+the alarm is sounding and I can see flames,relevant,pair-111
+The alarm sounded during a planned test,not_relevant,pair-111
+I fell hard and cannot stand,relevant,pair-112
+The actor fell hard during a stunt and stood afterward,not_relevant,pair-112
+send help to the house at the end of the road,relevant,pair-113
+The help page gives directions to the house at the end of the road,not_relevant,pair-113
+the elevator stopped and there are children inside,relevant,pair-114
+The elevator stopped briefly during maintenance,not_relevant,pair-114
+I am lost in the smoke and cannot find my door,relevant,pair-115
+The magician lost a prop in stage smoke,not_relevant,pair-115
+"we need to leave now, the river reached the stairs",relevant,pair-116
+The river reached the stairs in a photograph,not_relevant,pair-116
+"please call an ambulance, my mother is not responding",relevant,pair-117
+The ambulance service wrote an informational article,not_relevant,pair-117
+there is debris across the entrance and we are inside,relevant,pair-118
+The cleanup crew moved debris across the entrance,not_relevant,pair-118
+the storm is breaking windows while we are indoors,relevant,pair-119
+The weather report says the storm broke windows yesterday,not_relevant,pair-119
+my breathing is getting worse and I need a doctor,relevant,pair-120
+The medical article explains why breathing can get worse,not_relevant,pair-120
+I cannot open the door and smoke is coming under it,relevant,pair-121
+The escape-room puzzle has smoke coming under a door,not_relevant,pair-121
+the hillside collapsed beside us and we are cut off,relevant,pair-122
+The geography lesson describes a hillside that collapsed,not_relevant,pair-122

@@ -1,0 +1,174 @@
+{
+  "dataset": "ml/data/experimental/sos_relevance.csv",
+  "dataset_size": 244,
+  "class_balance": {
+    "relevant": 122,
+    "not_relevant": 122
+  },
+  "split": {
+    "train": 170,
+    "validation": 36,
+    "test": 38,
+    "train_groups": 85,
+    "validation_groups": 18,
+    "test_groups": 19,
+    "group_overlap": false
+  },
+  "model": "TfidfVectorizer word unigrams/bigrams + balanced LinearSVC",
+  "validation": {
+    "accuracy": 0.9722222222222222,
+    "precision_macro": 0.9736842105263157,
+    "recall_macro": 0.9722222222222222,
+    "f1_macro": 0.9722007722007722,
+    "per_class": {
+      "not_relevant": {
+        "precision": 1.0,
+        "recall": 0.9444444444444444,
+        "f1": 0.9714285714285714,
+        "support": 18
+      },
+      "relevant": {
+        "precision": 0.9473684210526315,
+        "recall": 1.0,
+        "f1": 0.972972972972973,
+        "support": 18
+      }
+    },
+    "confusion_matrix": [
+      [
+        17,
+        1
+      ],
+      [
+        0,
+        18
+      ]
+    ],
+    "labels": [
+      "not_relevant",
+      "relevant"
+    ],
+    "false_negatives": [],
+    "false_positives": [
+      {
+        "text": "The swimming pool water is at my knees",
+        "expected": "not_relevant",
+        "predicted": "relevant"
+      }
+    ]
+  },
+  "test": {
+    "accuracy": 1.0,
+    "precision_macro": 1.0,
+    "recall_macro": 1.0,
+    "f1_macro": 1.0,
+    "per_class": {
+      "not_relevant": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 19
+      },
+      "relevant": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 19
+      }
+    },
+    "confusion_matrix": [
+      [
+        19,
+        0
+      ],
+      [
+        0,
+        19
+      ]
+    ],
+    "labels": [
+      "not_relevant",
+      "relevant"
+    ],
+    "false_negatives": [],
+    "false_positives": []
+  },
+  "panel": {
+    "accuracy": 0.7575757575757576,
+    "precision_macro": 0.7706766917293233,
+    "recall_macro": 0.7666666666666666,
+    "f1_macro": 0.7573529411764706,
+    "per_class": {
+      "not_relevant": {
+        "precision": 0.8571428571428571,
+        "recall": 0.6666666666666666,
+        "f1": 0.75,
+        "support": 18
+      },
+      "relevant": {
+        "precision": 0.6842105263157895,
+        "recall": 0.8666666666666667,
+        "f1": 0.7647058823529411,
+        "support": 15
+      }
+    },
+    "confusion_matrix": [
+      [
+        12,
+        6
+      ],
+      [
+        2,
+        13
+      ]
+    ],
+    "labels": [
+      "not_relevant",
+      "relevant"
+    ],
+    "false_negatives": [
+      {
+        "text": "water through the front door rn",
+        "expected": "relevant",
+        "predicted": "not_relevant"
+      },
+      {
+        "text": "our only bridge disappeared in the storm",
+        "expected": "relevant",
+        "predicted": "not_relevant"
+      }
+    ],
+    "false_positives": [
+      {
+        "text": "News says a fire happened across the border",
+        "expected": "not_relevant",
+        "predicted": "relevant"
+      },
+      {
+        "text": "pls help me finish this homework",
+        "expected": "not_relevant",
+        "predicted": "relevant"
+      },
+      {
+        "text": "Happy birthday to my sister",
+        "expected": "not_relevant",
+        "predicted": "relevant"
+      },
+      {
+        "text": "my phone is dying and I need a charger",
+        "expected": "not_relevant",
+        "predicted": "relevant"
+      },
+      {
+        "text": "I saw a rescue helicopter on television",
+        "expected": "not_relevant",
+        "predicted": "relevant"
+      },
+      {
+        "text": "The weather is lovely today",
+        "expected": "not_relevant",
+        "predicted": "relevant"
+      }
+    ]
+  }
+}
