@@ -19,12 +19,13 @@ const finalPriorityExplanation = (emergency) => {
   if (emergency.priority_classification_review_required) {
     return 'Final rescue priority is pending manual selection; the displayed four-category value is only a temporary compatibility value.';
   }
-  return emergency.final_priority_reason || 'Final priority is determined from structured SOS impact fields and urgency.';
+  return emergency.final_priority_reason || 'Final priority is unavailable.';
 };
 
 export default function EmergencyDetails({ id }) {
   const [emergency, setEmergency] = useState(null);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
 
   const load = () => getEmergency(id)
@@ -35,11 +36,14 @@ export default function EmergencyDetails({ id }) {
 
   const update = async (payload) => {
     setSaving(true);
+    setError('');
+    setSuccess('');
     try {
       const updated = payload.manual_priority
           ? await updateEmergencyPriority(id, payload.manual_priority)
         : await updateEmergencyStatus(id, payload.status);
       setEmergency(updated);
+      setSuccess(payload.manual_priority ? 'Priority updated successfully.' : 'Status updated successfully.');
     } catch {
       setError('Unable to update this emergency.');
     } finally {
@@ -56,48 +60,43 @@ export default function EmergencyDetails({ id }) {
         <div>
           <p className="eyebrow">Emergency details</p>
           <h1>Emergency #{emergency.id}</h1>
-          <p className="subtitle">AI analysis and deterministic rescue priority are shown separately.</p>
+          <p className="subtitle">Rescue operations overview</p>
         </div>
-        <a className="ghost-link" href={emergency.status === 'RESOLVED' ? '#resolved' : '#operations'}>Back to {emergency.status === 'RESOLVED' ? 'resolved emergencies' : 'active dashboard'}</a>
+        <div className="detail-header-actions">
+          <span className={`priority-badge ${String(emergency.priority_level || 'LOW').toLowerCase()}`}>{emergency.priority_level || 'LOW'}</span>
+          <span className={`status-pill status-${String(emergency.status || '').toLowerCase()}`}>{emergency.status}</span>
+          <a className="ghost-link" href={emergency.status === 'RESOLVED' ? '#resolved' : '#operations'}>Back to {emergency.status === 'RESOLVED' ? 'resolved emergencies' : 'active dashboard'}</a>
+        </div>
       </header>
 
       {error ? <div className="status-message status-failed">{error}</div> : null}
+      {success ? <div className="status-message">{success}</div> : null}
       <section className="detail-section">
-        <h3>INCIDENT INFORMATION</h3>
-        <div className="detail-block"><p>{emergency.message}</p><small>Created {new Date(emergency.created_at).toLocaleString()} · Updated {new Date(emergency.updated_at).toLocaleString()}</small></div>
-      </section>
-      <section className="detail-section">
-        <h3>LOCATION</h3>
-        <div className="detail-grid">
-          <div><span>Latitude</span><strong>{emergency.latitude ?? 'Location unavailable'}</strong></div>
-          <div><span>Longitude</span><strong>{emergency.longitude ?? 'Location unavailable'}</strong></div>
-        </div>
-        <EmergencyMap emergencies={[emergency]} onSelectEmergency={() => {}} />
-      </section>
-      <section className="detail-section">
-        <h3>IMPACT</h3>
-        <div className="detail-grid">
+        <div className="section-heading"><div><p className="eyebrow">Incoming report</p><h2>Emergency Information</h2></div></div>
+        <div className="detail-block"><p className="incident-message">{emergency.message}</p><small>Created {new Date(emergency.created_at).toLocaleString()} · Updated {new Date(emergency.updated_at).toLocaleString()}</small></div>
+        <div className="detail-grid impact-grid">
           <div><span>People affected</span><strong>{emergency.people_affected}</strong></div>
           <div><span>Injured</span><strong>{emergency.injured ? 'Yes' : 'No'}</strong></div>
           <div><span>Trapped</span><strong>{emergency.trapped ? 'Yes' : 'No'}</strong></div>
           <div><span>Fire</span><strong>{emergency.fire ? 'Yes' : 'No'}</strong></div>
           <div><span>Medical emergency</span><strong>{emergency.medical_emergency ? 'Yes' : 'No'}</strong></div>
+          <div><span>Urgency input</span><strong>{emergency.urgency}</strong></div>
         </div>
       </section>
       <section className="detail-section ai-analysis">
-        <div className="ai-analysis-header"><h3>AI ANALYSIS</h3><span>{hasCurrentAiAnalysis(emergency) ? displayValue(emergency.priority_classification_source) : 'Legacy / Not analyzed'}</span></div>
+        <div className="ai-analysis-header"><div><p className="eyebrow">Decision support</p><h2>AI Analysis</h2></div><span>{hasCurrentAiAnalysis(emergency) ? displayValue(emergency.priority_classification_source) : 'Legacy / Not analyzed'}</span></div>
         <div className="ai-analysis-grid">
          <div><span>AI Relevance</span><strong>{!hasCurrentAiAnalysis(emergency) ? 'Legacy / Not analyzed' : emergency.ai_relevant == null ? 'Not analyzed' : emergency.ai_relevant ? 'RELEVANT' : 'NOT RELEVANT'}</strong></div>
-         <div><span>Relevance confidence</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_relevance_confidence : null)}</strong></div>
+         <div><span>Relevance confidence (experimental)</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_relevance_confidence : null)}</strong></div>
          <div><span>Safety evidence</span><strong>{hasCurrentAiAnalysis(emergency) ? (emergency.emergency_evidence_detected ? 'Detected' : 'Not detected') : 'Legacy / Not analyzed'}</strong></div>
-         <div><span>Operational processing</span><strong>{hasCurrentAiAnalysis(emergency) ? (emergency.operational_safety_processing ? 'Emergency evidence detected — analysis continued' : 'Normal relevance processing') : 'Legacy / Not analyzed'}</strong></div>
-          <div><span>AI Priority</span><strong>{isNotActionable(emergency) ? 'N/A' : hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_priority) : 'Legacy / Not analyzed'}</strong></div>
-          <div><span>AI Priority confidence</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_priority_confidence : null)}</strong></div>
+         <div><span>Operational processing</span><strong>{hasCurrentAiAnalysis(emergency) ? (emergency.operational_safety_processing ? 'Continued due to safety evidence' : isNotActionable(emergency) ? 'Stopped after relevance' : 'Continued') : 'Legacy / Not analyzed'}</strong></div>
+          <div><span>AI Priority</span><strong>{isNotActionable(emergency) ? 'NOT PERFORMED' : hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_priority) : 'Legacy / Not analyzed'}</strong></div>
+          <div><span>Priority confidence (experimental)</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_priority_confidence : null)}</strong></div>
           <div><span>Priority source</span><strong>{displayValue(emergency.priority_classification_source)}</strong></div>
           <div><span>Priority review required</span><strong>{emergency.priority_classification_review_required ? 'Yes' : 'No'}</strong></div>
         </div>
-        <div className="ai-reason"><strong>AI priority reason</strong><p>{hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_priority_reason) : 'Legacy / Not analyzed'}</p></div>
-        {isNotActionable(emergency) ? <p className="detail-note">Not relevant or below the operational relevance threshold — no further classification.</p> : null}
+        <div className="ai-reason"><strong>Why this classification</strong><p>{isNotActionable(emergency) ? 'Priority classification was not performed because the SOS was determined to be not relevant.' : hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_priority_reason) : 'Legacy / Not analyzed'}</p></div>
+        {emergency.operational_safety_processing ? <p className="detail-note safety-note">Safety evidence detected. Operational processing continued despite the relevance result.</p> : null}
         {emergency.priority_classification_review_required ? (
           <div className="category-actions manual-review">
             <strong>Manual priority review required</strong>
@@ -108,22 +107,32 @@ export default function EmergencyDetails({ id }) {
         ) : null}
       </section>
       <section className="detail-section">
-        <h3>FINAL RESCUE PRIORITY</h3>
+        <div className="section-heading"><div><p className="eyebrow">Operational decision</p><h2>Final Rescue Priority</h2></div></div>
         <div className={`priority-summary ${String(emergency.priority_level || '').toLowerCase()}`}>
           <div><span>Final Priority</span><strong>{emergency.priority_classification_review_required ? 'Pending Manual Review' : emergency.priority_level}</strong></div>
+          <span className={`priority-badge ${String(emergency.priority_level || 'LOW').toLowerCase()}`}>{emergency.priority_level || 'LOW'}</span>
         </div>
-        <div className="detail-grid">
-          <div><span>Urgency input</span><strong>{emergency.urgency}</strong></div>
+        <div className="detail-grid decision-meta">
+          <div><span>Source</span><strong>{emergency.priority_classification_source || 'Unavailable'}</strong></div>
+          <div><span>Review required</span><strong>{emergency.priority_classification_review_required ? 'Yes' : 'No'}</strong></div>
         </div>
         <p className="detail-note">{finalPriorityExplanation(emergency)}</p>
-        <p className="detail-note">Safety protection applied: {emergency.safety_protection_applied ? 'Yes' : 'No'}</p>
-        <p className="detail-note">Final rescue priority follows the V2 AI priority category, with explicit safety protection where required.</p>
+        {emergency.safety_protection_applied ? <p className="detail-note safety-note">Safety protection applied to this incident.</p> : null}
       </section>
       <section className="status-control">
-        <label htmlFor="detail-status">Current status</label>
-        <select id="detail-status" value={emergency.status} onChange={(event) => update({ status: event.target.value })} disabled={saving}>
+        <div><p className="eyebrow">Rescue operations</p><label htmlFor="detail-status">Operational status</label></div>
+        <select id="detail-status" className={`status-select status-${String(emergency.status || '').toLowerCase()}`} value={emergency.status} onChange={(event) => update({ status: event.target.value })} disabled={saving}>
           {STATUS_OPTIONS.map((status) => <option value={status} key={status}>{status}</option>)}
         </select>
+        {saving ? <span className="status-saving">Saving...</span> : null}
+      </section>
+      <section className="detail-section location-section">
+        <div className="section-heading"><div><p className="eyebrow">Coordinates and map</p><h2>Incident Location</h2></div></div>
+        <EmergencyMap emergencies={[emergency]} onSelectEmergency={() => {}} />
+        <div className="detail-grid location-coordinates">
+          <div><span>Latitude</span><strong>{emergency.latitude ?? 'Location unavailable'}</strong></div>
+          <div><span>Longitude</span><strong>{emergency.longitude ?? 'Location unavailable'}</strong></div>
+        </div>
       </section>
     </div>
   );

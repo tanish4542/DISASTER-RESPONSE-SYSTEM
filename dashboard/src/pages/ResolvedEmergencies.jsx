@@ -7,6 +7,13 @@ export default function ResolvedEmergencies() {
   const [emergencies, setEmergencies] = useState([]);
   const [error, setError] = useState('');
   const hasCurrentAiAnalysis = (emergency) => Boolean(emergency.priority_classification_source);
+  const sourceLabel = (emergency) => ({
+    AI: 'AI',
+    MANUAL: 'Manual override',
+    MANUAL_REVIEW: 'Manual review',
+    NOT_RELEVANT: 'Not relevant',
+    LOW_RELEVANCE_CONFIDENCE: 'Low relevance confidence',
+  }[emergency.priority_classification_source] || 'Legacy / Not analyzed');
 
   useEffect(() => {
     getEmergencies('RESOLVED')
@@ -36,11 +43,12 @@ export default function ResolvedEmergencies() {
             <a className="resolved-card" href={`#emergency/${emergency.id}`} key={emergency.id}>
               <div className="card-toprow">
                 <strong>Emergency #{emergency.id}</strong>
-                <span className="priority-badge">{emergency.priority_level}</span>
+                <span className={`priority-badge ${String(emergency.priority_level || 'LOW').toLowerCase()}`}>{emergency.priority_level || 'LOW'}</span>
               </div>
               <p>{emergency.message}</p>
               <div className="meta-row">
-                <span>{hasCurrentAiAnalysis(emergency) ? 'AI priority analysis' : 'Legacy / Not analyzed'}</span>
+                <span>{hasCurrentAiAnalysis(emergency) ? `Source: ${sourceLabel(emergency)}` : 'Legacy / Not analyzed'}</span>
+                <span className="status-pill status-resolved">RESOLVED</span>
               </div>
               <div className="meta-row muted">
                 <span>{emergency.final_priority_reason || 'Final priority reason unavailable'}</span>

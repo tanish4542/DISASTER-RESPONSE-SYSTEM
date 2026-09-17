@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import 'leaflet/dist/leaflet.css';
 import '../operations.css';
 import { getEmergencies } from '../services/api';
@@ -16,25 +16,30 @@ function OperationsDashboard() {
   const [error, setError] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const refreshInFlight = useRef(false);
 
-  const loadEmergencies = async () => {
+  const loadEmergencies = useCallback(async () => {
+    if (refreshInFlight.current) return;
+    refreshInFlight.current = true;
     setLoading(true);
     setError('');
 
     try {
       const data = await getEmergencies();
       setEmergencies(Array.isArray(data) ? data.filter((item) => item.status !== 'RESOLVED') : []);
-    } catch (loadError) {
+    } catch {
       setError('Unable to connect to the rescue server.');
-      setEmergencies([]);
     } finally {
       setLoading(false);
+      refreshInFlight.current = false;
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadEmergencies();
-  }, []);
+    const intervalId = window.setInterval(loadEmergencies, 10000);
+    return () => window.clearInterval(intervalId);
+  }, [loadEmergencies]);
 
   const filteredEmergencies = useMemo(() => {
     return emergencies.filter((emergency) => {
@@ -50,6 +55,7 @@ function OperationsDashboard() {
       critical: emergencies.filter((item) => item.priority_level === 'CRITICAL').length,
       high: emergencies.filter((item) => item.priority_level === 'HIGH').length,
       medium: emergencies.filter((item) => item.priority_level === 'MEDIUM').length,
+      low: emergencies.filter((item) => item.priority_level === 'LOW').length,
       pending: emergencies.filter((item) => item.status === 'PENDING').length,
     };
 
@@ -60,24 +66,24 @@ function OperationsDashboard() {
     typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : '—'
   );
   const hasCurrentAiAnalysis = (emergency) => Boolean(emergency.priority_classification_source);
-  const aiPriorityLabel = (emergency) => (
-    hasCurrentAiAnalysis(emergency) && emergency.ai_priority
-      ? emergency.ai_priority
-      : 'Legacy / Not analyzed'
-  );
   const aiPriorityConfidence = (emergency) => (
     hasCurrentAiAnalysis(emergency) ? emergency.ai_priority_confidence : null
   );
   const prioritySourceLabel = (emergency) => (
-    emergency.priority_classification_source || 'Legacy / Not analyzed'
+    ({
+      AI: 'AI',
+      MANUAL: 'Manual override',
+      MANUAL_REVIEW: 'Manual review',
+      NOT_RELEVANT: 'Not relevant',
+      LOW_RELEVANCE_CONFIDENCE: 'Low relevance confidence',
+    }[emergency.priority_classification_source] || 'Legacy / Not analyzed')
   );
-  const finalPriorityLabel = (emergency) => (
-    emergency.priority_classification_review_required
-      ? 'Pending Manual Priority Review'
-      : `Final Priority: ${emergency.priority_level}`
-  );
-  const safetyElevation = (emergency) => (
-    emergency.safety_protection_applied ? emergency.final_priority_reason : null
+  const aiPriorityReason = (emergency) => (
+    emergency.ai_priority
+      ? emergency.ai_priority_reason
+      : emergency.ai_relevant === false
+        ? 'SOS was determined not relevant; priority was not classified.'
+        : 'AI priority not available.'
   );
 
   return (
@@ -96,8 +102,9 @@ function OperationsDashboard() {
         <div className="command-actions">
           <a className="ghost-link" href="#resolved">Resolved Emergencies</a>
           <a className="ghost-link" href="#">Homepage</a>
-          <button type="button" className="refresh-button" onClick={loadEmergencies}>
-            Refresh
+          <span className="auto-refresh-indicator">Auto-refresh: 10s</span>
+          <button type="button" className="refresh-button" onClick={loadEmergencies} disabled={loading}>
+            {loading ? 'Refreshing...' : 'Refresh'}
           </button>
         </div>
       </header>
@@ -107,18 +114,22 @@ function OperationsDashboard() {
           <span>Total incidents</span>
           <strong>{summary.total}</strong>
         </div>
-        <div className="summary-card critical">
+        <button type="button" className={`summary-card critical ${priorityFilter === 'CRITICAL' ? 'selected' : ''}`} onClick={() => setPriorityFilter('CRITICAL')}>
           <span>Critical</span>
           <strong>{summary.critical}</strong>
-        </div>
-        <div className="summary-card high">
+        </button>
+        <button type="button" className={`summary-card high ${priorityFilter === 'HIGH' ? 'selected' : ''}`} onClick={() => setPriorityFilter('HIGH')}>
           <span>High</span>
           <strong>{summary.high}</strong>
-        </div>
-        <div className="summary-card medium">
+        </button>
+        <button type="button" className={`summary-card medium ${priorityFilter === 'MEDIUM' ? 'selected' : ''}`} onClick={() => setPriorityFilter('MEDIUM')}>
           <span>Medium</span>
           <strong>{summary.medium}</strong>
-        </div>
+        </button>
+        <button type="button" className={`summary-card low ${priorityFilter === 'LOW' ? 'selected' : ''}`} onClick={() => setPriorityFilter('LOW')}>
+          <span>Low</span>
+          <strong>{summary.low}</strong>
+        </button>
         <div className="summary-card pending">
           <span>Pending</span>
           <strong>{summary.pending}</strong>
@@ -134,6 +145,14 @@ function OperationsDashboard() {
             ))}
           </select>
         </div>
+        <button
+          type="button"
+          className="clear-filters"
+          onClick={() => { setPriorityFilter('ALL'); setStatusFilter('ALL'); }}
+          disabled={priorityFilter === 'ALL' && statusFilter === 'ALL'}
+        >
+          Clear filters
+        </button>
 
         <div className="filter-group">
           <label htmlFor="status-filter">Status</label>
@@ -156,7 +175,7 @@ function OperationsDashboard() {
           <button type="button" className="retry-button" onClick={loadEmergencies}>Retry</button>
         </div>
       ) : filteredEmergencies.length === 0 ? (
-        <div className="state-box">No emergency requests found.</div>
+        <div className="state-box">No incidents match the selected filters.</div>
       ) : (
         <div className="content-grid">
           <div className="list-panel">
@@ -171,25 +190,26 @@ function OperationsDashboard() {
                 href={`#emergency/${emergency.id}`}
               >
                 <div className="card-toprow">
-                  <span className="id-chip">#{emergency.id}</span>
-                  <span className="category-badge">{emergency.operational_safety_processing ? 'Safety processing' : 'Emergency'}</span>
+                  <span className="priority-badge">{emergency.priority_level || 'LOW'}</span>
+                  <span className={`status-pill status-${String(emergency.status || '').toLowerCase()}`}>{emergency.status}</span>
                 </div>
-                <div className="card-ai-row">
-                  <strong>AI Priority: {aiPriorityLabel(emergency)}</strong>
-                  <span>Confidence: {confidenceLabel(aiPriorityConfidence(emergency))}</span>
-                </div>
-                {emergency.priority_classification_review_required ? (
-                  <div className="review-banner">Manual priority review required</div>
-                ) : null}
-                <div className="meta-row muted">
-                  <span>Source: {prioritySourceLabel(emergency)}</span>
+                <div className="incident-card-title">
+                  <span className="id-chip">Emergency #{emergency.id}</span>
+                  {emergency.status === 'PENDING' ? <span className="new-badge">NEW</span> : null}
                 </div>
                 <p className="card-message">{emergency.message}</p>
-                <div className="meta-row">
-                  <span>{finalPriorityLabel(emergency)}</span>
-                  <span>{emergency.status}</span>
+                <div className="card-ai-row">
+                  <strong>AI Priority: {emergency.ai_priority || 'Not classified'}</strong>
+                  <span>Priority confidence: {confidenceLabel(aiPriorityConfidence(emergency))}</span>
                 </div>
-                {safetyElevation(emergency) ? <div className="review-banner">{safetyElevation(emergency)}</div> : null}
+                <div className="meta-row muted">
+                  <span>Final Priority: {emergency.priority_level || '—'}</span>
+                  <span>Source: {prioritySourceLabel(emergency)}</span>
+                </div>
+                {emergency.priority_classification_review_required ? (
+                  <div className="review-banner">Priority review required</div>
+                ) : null}
+                {emergency.operational_safety_processing ? <div className="review-banner">Safety evidence detected — processing continued</div> : null}
                 <div className="meta-row muted">
                   <span>{emergency.people_affected} affected</span>
                   <span>Location: {emergency.latitude ?? '—'}, {emergency.longitude ?? '—'}</span>
@@ -199,8 +219,9 @@ function OperationsDashboard() {
                   <span>Fire: {emergency.fire ? 'Yes' : 'No'} · Medical: {emergency.medical_emergency ? 'Yes' : 'No'}</span>
                 </div>
                 <div className="meta-row muted">
-                  <span>{new Date(emergency.created_at).toLocaleString()}</span>
+                  <span>Updated {new Date(emergency.updated_at).toLocaleString()}</span>
                 </div>
+                <p className="card-ai-reason">{aiPriorityReason(emergency)}</p>
               </a>
             ))}
           </div>
