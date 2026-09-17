@@ -12,6 +12,11 @@ import pandas as pd
 
 from ..preprocessing import normalize_text
 
+_NON_EXPLANATORY_TERMS = {
+    "a", "an", "and", "are", "for", "in", "is", "it", "no", "of",
+    "on", "one", "our", "the", "this", "to", "we", "with",
+}
+
 
 class PriorityV3Classifier:
     """Run V3 without changing the existing text-only Classifier contract."""
@@ -37,6 +42,22 @@ class PriorityV3Classifier:
         shifted = raw - np.max(raw)
         confidence = np.exp(shifted) / np.exp(shifted).sum()
         selected = classes.index(label)
+        evidence_terms = []
+        try:
+            transformed = self.pipeline.named_steps["features"].transform(frame)
+            feature_names = self.pipeline.named_steps["features"].get_feature_names_out()
+            coefficients = self.pipeline.named_steps["classifier"].coef_[selected]
+            contributions = transformed.multiply(coefficients).toarray().ravel()
+            ranked = np.argsort(contributions)[::-1]
+            evidence_terms = [
+                str(feature_names[index]).removeprefix("text__")
+                for index in ranked
+                if contributions[index] > 0 and transformed[0, index] > 0
+                and str(feature_names[index]).startswith("text__")
+                and str(feature_names[index]).removeprefix("text__") not in _NON_EXPLANATORY_TERMS
+            ][:5]
+        except (AttributeError, IndexError, KeyError, TypeError, ValueError):
+            evidence_terms = []
         return {
             "label": label,
             "confidence": float(confidence[selected]),
@@ -44,6 +65,6 @@ class PriorityV3Classifier:
             "confidence_method": "NON-CALIBRATED softmax-normalized SVM decision score",
             "model_version": self.model_version,
             "normalized_text": normalized,
-            "evidence_terms": [],
+            "evidence_terms": evidence_terms,
             "inferred_at": datetime.now(timezone.utc).isoformat(),
         }

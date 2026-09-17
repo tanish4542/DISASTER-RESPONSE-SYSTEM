@@ -63,6 +63,8 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
             trapped=emergency_data.trapped,
             fire=emergency_data.fire,
             medical_emergency=emergency_data.medical_emergency,
+            people_affected=emergency_data.people_affected,
+            urgency=emergency_data.urgency,
         )
     except Exception:
         logger.exception("NLP analysis failed; storing emergency without AI fields")
@@ -159,6 +161,8 @@ def reanalyze_legacy_emergencies(db: Session = Depends(get_db)):
                 trapped=emergency.trapped,
                 fire=emergency.fire,
                 medical_emergency=emergency.medical_emergency,
+                people_affected=emergency.people_affected,
+                urgency=emergency.urgency,
             )
         except Exception:
             logger.exception("NLP reanalysis failed for emergency %s", emergency.id)

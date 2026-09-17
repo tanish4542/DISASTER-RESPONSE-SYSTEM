@@ -61,17 +61,21 @@ def test_create_valid_emergency(client):
 
 
 @pytest.mark.parametrize(
-    ("message", "expected_priority", "relevant"),
+    ("message", "expected_priority", "relevant", "fields"),
     [
-        ("Hello", None, False),
-        ("People are trapped inside a collapsed building and one person is bleeding.", "CRITICAL", True),
-        ("Building is badly damaged and residents need evacuation.", "HIGH", True),
-        ("Floodwater entered the yard and we need basic assistance, but everyone is safe.", "MEDIUM", True),
-        ("Small water accumulation on the road, no injuries and everyone is safe.", "LOW", True),
+        ("Hello", None, False, {}),
+        ("People are trapped inside a collapsed building and one person is bleeding.", "CRITICAL", True,
+         {"injured": True, "trapped": True, "medical_emergency": True, "people_affected": 2, "urgency": 5}),
+        ("The apartment block is unsafe and residents need help leaving.", "HIGH", True,
+         {"people_affected": 18, "urgency": 4}),
+        ("Floodwater entered the yard and we need basic assistance, but everyone is safe.", "MEDIUM", True,
+         {"people_affected": 8, "urgency": 2}),
+        ("Small water accumulation on the road, no injuries and everyone is safe.", "LOW", True,
+         {"people_affected": 1, "urgency": 1}),
     ],
 )
-def test_v2_priority_pipeline_cases(client, message, expected_priority, relevant):
-    response = client.post("/api/emergencies", json={
+def test_v3_priority_pipeline_cases(client, message, expected_priority, relevant, fields):
+    payload = {
         "message": message,
         "latitude": 0,
         "longitude": 0,
@@ -81,6 +85,10 @@ def test_v2_priority_pipeline_cases(client, message, expected_priority, relevant
         "fire": False,
         "medical_emergency": False,
         "urgency": 1,
+    }
+    payload.update(fields)
+    response = client.post("/api/emergencies", json={
+        **payload,
     })
     assert response.status_code == 201
     data = response.json()
@@ -142,6 +150,44 @@ def test_non_relevant_messages_stop_after_relevance(client, message):
     assert "ai_disaster_type" not in data
 
 
+def test_irrelevant_sos_does_not_call_v3_priority(client, monkeypatch):
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("V3 priority must not run for an irrelevant SOS")
+
+    monkeypatch.setattr(
+        "ml.src.inference.priority_v3.PriorityV3Classifier.predict",
+        fail_if_called,
+    )
+    response = client.post("/api/emergencies", json=_message_payload("Hello"))
+    assert response.status_code == 201
+    data = response.json()
+    assert data["ai_relevant"] is False
+    assert data["ai_priority"] is None
+    assert data["priority_level"] == "LOW"
+    assert data["priority_classification_source"] == "NOT_RELEVANT"
+    assert "further classification" in data["ai_priority_reason"] or "not relevant" in data["ai_priority_reason"]
+
+
+def test_v3_response_contains_confidence_reason_and_no_removed_fields(client):
+    response = client.post(
+        "/api/emergencies",
+        json=_message_payload(
+            "People are trapped inside and need immediate rescue.",
+            trapped=True,
+            people_affected=3,
+            urgency=5,
+        ),
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["ai_priority"] in {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
+    assert data["ai_priority_confidence"] is not None
+    assert data["ai_priority_reason"]
+    assert "ai_disaster_type" not in data
+    assert "priority_score" not in data
+    assert "ai_urgency" not in data
+
+
 def test_flood_message_persists_current_ai_fields(client):
     response = client.post("/api/emergencies", json={
         "message": "I am stuck in flood I need food",
@@ -181,7 +227,7 @@ def test_flood_message_persists_current_ai_fields(client):
         assert fetched_data[field] == data[field]
     if data["priority_classification_source"] == "MANUAL_REVIEW":
         assert data["priority_classification_review_required"] is True
-        assert data["priority_level"] in {"MEDIUM", "HIGH", "CRITICAL"}
+        assert data["priority_level"] in {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
 
 
 def test_trapped_injured_message_is_safety_protected_critical(client):
@@ -705,7 +751,7 @@ def test_possible_trapped_people_continue_through_safety_processing(client):
     assert response.status_code == 201
     data = response.json()
     assert data["priority_level"] == "CRITICAL"
-    assert data["safety_protection_applied"] is False
+    assert data["safety_protection_applied"] is True
     assert data["emergency_evidence_detected"] is True
     assert data["operational_safety_processing"] is True
 

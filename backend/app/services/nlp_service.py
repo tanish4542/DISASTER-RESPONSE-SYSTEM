@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from ml.src.inference import Classifier
+from ml.src.inference.priority_v3 import PriorityV3Classifier
 from ml.src.inference.urgency import has_emergency_indicator
 
 OPERATIONAL_RELEVANCE_MIN_CONFIDENCE = 0.70
@@ -38,11 +39,11 @@ def has_safety_evidence(
 
 
 @lru_cache(maxsize=1)
-def _load_models() -> tuple[Classifier, Classifier]:
+def _load_models() -> tuple[Classifier, PriorityV3Classifier]:
     models = ROOT / "ml" / "models"
     return (
         Classifier(models / "relevance.joblib"),
-        Classifier(models / "experimental" / "priority_experimental_v2.joblib"),
+        PriorityV3Classifier(models / "experimental" / "priority_experimental_v3.joblib"),
     )
 
 
@@ -53,6 +54,8 @@ def analyze_message(
     trapped: bool = False,
     fire: bool = False,
     medical_emergency: bool = False,
+    people_affected: int = 0,
+    urgency: int = 0,
 ) -> dict[str, Any]:
     """Analyze a message, preserving explicit structured safety signals."""
     relevance, priority = _load_models()
@@ -95,7 +98,15 @@ def analyze_message(
             "operational_safety_processing": safety_override,
         }
 
-    priority_result = priority.predict(message)
+    priority_result = priority.predict(
+        message,
+        injured=int(injured),
+        trapped=int(trapped),
+        fire=int(fire),
+        medical_emergency=int(medical_emergency),
+        people_affected=people_affected,
+        urgency=urgency,
+    )
     priority_label = priority_result["label"]
     priority_confidence = priority_result["confidence"]
     priority_review_required = priority_confidence < PRIORITY_MIN_CONFIDENCE
@@ -103,6 +114,9 @@ def analyze_message(
         f"The priority model predicted {priority_result['label']} with "
         f"{priority_confidence:.1%} non-calibrated confidence."
     )
+    evidence = priority_result.get("evidence_terms", [])
+    if evidence:
+        priority_reason += f" Model evidence terms: {', '.join(evidence)}."
     if priority_review_required:
         priority_reason += (
             f" Confidence is below the {PRIORITY_MIN_CONFIDENCE:.0%} experimental "
