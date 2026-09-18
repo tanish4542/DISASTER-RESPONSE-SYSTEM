@@ -27,6 +27,8 @@ export default function EmergencyDetails({ id }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
+  const [interventionOpen, setInterventionOpen] = useState(false);
+  const [selectedPriority, setSelectedPriority] = useState('');
 
   const load = () => getEmergency(id)
     .then(setEmergency)
@@ -43,7 +45,7 @@ export default function EmergencyDetails({ id }) {
           ? await updateEmergencyPriority(id, payload.manual_priority)
         : await updateEmergencyStatus(id, payload.status);
       setEmergency(updated);
-      setSuccess(payload.manual_priority ? 'Priority updated successfully.' : 'Status updated successfully.');
+      setSuccess('Status updated successfully.');
     } catch {
       setError('Unable to update this emergency.');
     } finally {
@@ -51,8 +53,47 @@ export default function EmergencyDetails({ id }) {
     }
   };
 
+  const applyManualDecision = async () => {
+    if (!selectedPriority) return;
+    setSaving(true);
+    setError('');
+    setSuccess('');
+    try {
+      const updated = await updateEmergencyPriority(id, selectedPriority);
+      setEmergency(updated);
+      try {
+        const refreshed = await getEmergency(id);
+        setEmergency(refreshed);
+      } catch {
+        // Keep the successful PATCH response if the follow-up refresh fails.
+      }
+      setInterventionOpen(false);
+      setSuccess('Manual decision applied successfully.');
+    } catch {
+      setError('Unable to apply the manual decision.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openIntervention = () => {
+    setSelectedPriority(emergency.priority_level || emergency.ai_priority || 'LOW');
+    setInterventionOpen(true);
+    setError('');
+    setSuccess('');
+  };
+
   if (error && !emergency) return <div className="dashboard-shell"><div className="state-box error-box">{error}</div></div>;
   if (!emergency) return <div className="dashboard-shell"><div className="state-box">Loading emergency...</div></div>;
+
+  const classificationSource = emergency.priority_classification_source === 'MANUAL'
+    ? 'MANUAL OVERRIDE'
+    : displayValue(emergency.priority_classification_source);
+  const manualExplanation = emergency.priority_classification_source === 'MANUAL'
+    ? emergency.ai_priority === emergency.priority_level
+      ? `Manual operator confirmed the AI priority as ${emergency.priority_level}.`
+      : `Manual operator override changed final priority from ${emergency.ai_priority || 'unavailable'} to ${emergency.priority_level}.`
+    : null;
 
   return (
     <div className="dashboard-shell">
@@ -84,7 +125,7 @@ export default function EmergencyDetails({ id }) {
         </div>
       </section>
       <section className="detail-section ai-analysis">
-        <div className="ai-analysis-header"><div><p className="eyebrow">Decision support</p><h2>AI Analysis</h2></div><span>{hasCurrentAiAnalysis(emergency) ? displayValue(emergency.priority_classification_source) : 'Legacy / Not analyzed'}</span></div>
+        <div className="ai-analysis-header"><div><p className="eyebrow">Decision support</p><h2>AI Analysis</h2></div><div className="ai-analysis-actions"><span>{hasCurrentAiAnalysis(emergency) ? classificationSource : 'Legacy / Not analyzed'}</span><button type="button" className="secondary-action" onClick={openIntervention}>Manual Intervention</button></div></div>
         <div className="ai-analysis-grid">
          <div><span>AI Relevance</span><strong>{!hasCurrentAiAnalysis(emergency) ? 'Legacy / Not analyzed' : emergency.ai_relevant == null ? 'Not analyzed' : emergency.ai_relevant ? 'RELEVANT' : 'NOT RELEVANT'}</strong></div>
          <div><span>Relevance confidence (experimental)</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_relevance_confidence : null)}</strong></div>
@@ -92,17 +133,33 @@ export default function EmergencyDetails({ id }) {
          <div><span>Operational processing</span><strong>{hasCurrentAiAnalysis(emergency) ? (emergency.operational_safety_processing ? 'Continued due to safety evidence' : isNotActionable(emergency) ? 'Stopped after relevance' : 'Continued') : 'Legacy / Not analyzed'}</strong></div>
           <div><span>AI Priority</span><strong>{isNotActionable(emergency) ? 'NOT PERFORMED' : hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_priority) : 'Legacy / Not analyzed'}</strong></div>
           <div><span>Priority confidence (experimental)</span><strong>{confidenceLabel(hasCurrentAiAnalysis(emergency) ? emergency.ai_priority_confidence : null)}</strong></div>
-          <div><span>Priority source</span><strong>{displayValue(emergency.priority_classification_source)}</strong></div>
+          <div><span>Priority source</span><strong>{classificationSource}</strong></div>
           <div><span>Priority review required</span><strong>{emergency.priority_classification_review_required ? 'Yes' : 'No'}</strong></div>
         </div>
         <div className="ai-reason"><strong>Why this classification</strong><p>{isNotActionable(emergency) ? 'Priority classification was not performed because the SOS was determined to be not relevant.' : hasCurrentAiAnalysis(emergency) ? displayValue(emergency.ai_priority_reason) : 'Legacy / Not analyzed'}</p></div>
         {emergency.operational_safety_processing ? <p className="detail-note safety-note">Safety evidence detected. Operational processing continued despite the relevance result.</p> : null}
-        {emergency.priority_classification_review_required ? (
-          <div className="category-actions manual-review">
-            <strong>Manual priority review required</strong>
-            {PRIORITY_OPTIONS.map((priority) => (
-              <button type="button" className={emergency.priority_classification_source === 'MANUAL' && emergency.priority_level === priority ? 'category-button selected' : 'category-button'} key={priority} onClick={() => update({ manual_priority: priority })} disabled={saving}>{priority}</button>
-            ))}
+        {manualExplanation ? <p className="detail-note manual-decision-note">{manualExplanation}</p> : null}
+        {interventionOpen ? (
+          <div className="manual-intervention-panel">
+            <div>
+              <p className="eyebrow">Operator action</p>
+              <h3>Manual Intervention</h3>
+              <p>AI classifications can be incorrect. A rescue operator can review the incident and override the final priority when necessary.</p>
+            </div>
+            <div className="manual-intervention-summary">
+              <div><span>Current AI Priority</span><strong>{emergency.ai_priority || 'Not classified'}</strong></div>
+              <div><span>AI Priority Confidence</span><strong>{confidenceLabel(emergency.ai_priority_confidence)}</strong></div>
+              <div><span>Current Final Priority</span><strong>{emergency.priority_level}</strong></div>
+            </div>
+            <div className="category-actions" aria-label="Select final priority">
+              {PRIORITY_OPTIONS.map((priority) => (
+                <button type="button" className={`category-button ${String(priority).toLowerCase()}${selectedPriority === priority ? ' selected' : ''}`} key={priority} onClick={() => setSelectedPriority(priority)} disabled={saving}>{priority}</button>
+              ))}
+            </div>
+            <div className="manual-intervention-actions">
+              <button type="button" className="primary-action" onClick={applyManualDecision} disabled={saving || !selectedPriority}>{saving ? 'Applying...' : 'Apply Manual Decision'}</button>
+              <button type="button" className="clear-filters" onClick={() => setInterventionOpen(false)} disabled={saving}>Cancel</button>
+            </div>
           </div>
         ) : null}
       </section>
@@ -113,10 +170,10 @@ export default function EmergencyDetails({ id }) {
           <span className={`priority-badge ${String(emergency.priority_level || 'LOW').toLowerCase()}`}>{emergency.priority_level || 'LOW'}</span>
         </div>
         <div className="detail-grid decision-meta">
-          <div><span>Source</span><strong>{emergency.priority_classification_source || 'Unavailable'}</strong></div>
+          <div><span>Source</span><strong>{classificationSource || 'Unavailable'}</strong></div>
           <div><span>Review required</span><strong>{emergency.priority_classification_review_required ? 'Yes' : 'No'}</strong></div>
         </div>
-        <p className="detail-note">{finalPriorityExplanation(emergency)}</p>
+        <p className="detail-note">{manualExplanation || finalPriorityExplanation(emergency)}</p>
         {emergency.safety_protection_applied ? <p className="detail-note safety-note">Safety protection applied to this incident.</p> : null}
       </section>
       <section className="status-control">

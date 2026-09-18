@@ -413,6 +413,46 @@
   font-size: 0.74rem;
 }
 
+.ai-analysis-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.secondary-action,
+.primary-action {
+  border-radius: 9px;
+  padding: 8px 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-action {
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(15, 27, 48, 0.72);
+  color: #dbeafe;
+}
+
+.secondary-action:hover,
+.secondary-action:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.primary-action {
+  border: 1px solid rgba(56, 189, 248, 0.55);
+  background: rgba(37, 99, 235, 0.85);
+  color: #eff6ff;
+}
+
+.primary-action:disabled,
+.secondary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
 .card-ai-row,
 .detail-note,
 .ai-reason,
@@ -487,6 +527,67 @@
 .category-button.selected {
   border-color: #38bdf8;
   background: rgba(56, 189, 248, 0.16);
+}
+
+.category-button.critical.selected { border-color: var(--critical); background: rgba(239, 68, 68, 0.18); }
+.category-button.high.selected { border-color: var(--high); background: rgba(249, 115, 22, 0.18); }
+.category-button.medium.selected { border-color: var(--medium); background: rgba(234, 179, 8, 0.18); }
+.category-button.low.selected { border-color: #38bdf8; background: rgba(56, 189, 248, 0.16); }
+
+.manual-intervention-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 15px;
+  border: 1px solid rgba(56, 189, 248, 0.38);
+  border-radius: 12px;
+  background: rgba(15, 27, 48, 0.58);
+}
+
+.manual-intervention-panel h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.manual-intervention-panel p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  line-height: 1.45;
+  font-size: 0.82rem;
+}
+
+.manual-intervention-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.manual-intervention-summary div {
+  display: grid;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 9px;
+  background: rgba(8, 16, 32, 0.45);
+}
+
+.manual-intervention-summary span {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.manual-intervention-summary strong {
+  font-size: 0.88rem;
+}
+
+.manual-intervention-actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.manual-decision-note {
+  color: #bae6fd;
 }
 
 .ai-analysis-grid {
