@@ -48,7 +48,7 @@ class EmergencyResponse(BaseModel):
     ai_priority: Optional[Literal["CRITICAL", "HIGH", "MEDIUM", "LOW"]] = None
     ai_priority_confidence: Optional[float] = None
     priority_classification_source: Optional[Literal[
-        "AI", "MANUAL_REVIEW", "MANUAL", "NOT_RELEVANT", "LOW_RELEVANCE_CONFIDENCE"
+        "AI", "MANUAL_REVIEW", "MANUAL", "NOT_RELEVANT", "LOW_RELEVANCE_CONFIDENCE", "TECHNICAL_FAILURE"
     ]] = None
     priority_classification_review_required: Optional[bool] = None
     ai_priority_reason: Optional[str] = None

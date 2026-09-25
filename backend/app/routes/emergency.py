@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api", tags=["emergencies"])
 def _finalize_priority(emergency_data, ai_results):
+    if ai_results.get("priority_classification_source") == "TECHNICAL_FAILURE":
+        if not ai_results.get("operational_safety_processing"):
+            return "LOW", False, "AI priority was not assigned because inference failed; manual review is required."
     if not ai_results.get("operational_safety_processing") and (
         ai_results.get("ai_relevant") is False
         or ai_results.get("ai_priority") is None
@@ -38,7 +41,43 @@ def _finalize_priority(emergency_data, ai_results):
 
 
 def populate_missing_ai_analysis(emergencies, db):
-    # Existing records are only analyzed through the explicit reanalysis action.
+    changed = False
+    for emergency in emergencies:
+        if emergency.priority_classification_source is not None:
+            continue
+        try:
+            results = analyze_message(
+                emergency.message,
+                injured=bool(emergency.injured),
+                trapped=bool(emergency.trapped),
+                fire=bool(emergency.fire),
+                medical_emergency=bool(emergency.medical_emergency),
+                people_affected=emergency.people_affected or 1,
+                urgency=emergency.urgency or 1,
+            )
+        except Exception as exc:
+            logger.exception("NLP analysis failed for legacy emergency %s", emergency.id)
+            results = {
+                "ai_relevant": None,
+                "ai_relevance_confidence": None,
+                "ai_priority": None,
+                "ai_priority_confidence": None,
+                "priority_classification_source": "TECHNICAL_FAILURE",
+                "priority_classification_review_required": True,
+                "ai_priority_reason": f"AI inference failed: {exc}. Manual review is required.",
+                "emergency_evidence_detected": has_safety_evidence(emergency.message),
+                "operational_safety_processing": has_safety_evidence(emergency.message),
+            }
+        for field, value in results.items():
+            setattr(emergency, field, value)
+        emergency.priority_level, emergency.safety_protection_applied, emergency.final_priority_reason = (
+            _finalize_priority(emergency, results)
+        )
+        changed = True
+    if changed:
+        db.commit()
+        for emergency in emergencies:
+            db.refresh(emergency)
     return emergencies
 
 @router.post("/emergencies", response_model=EmergencyResponse, status_code=201)
@@ -66,8 +105,25 @@ def create_emergency(emergency_data: EmergencyCreate, db: Session = Depends(get_
             people_affected=emergency_data.people_affected,
             urgency=emergency_data.urgency,
         )
-    except Exception:
+    except Exception as exc:
         logger.exception("NLP analysis failed; storing emergency without AI fields")
+        ai_results = {
+            "ai_relevant": None,
+            "ai_relevance_confidence": None,
+            "ai_priority": None,
+            "ai_priority_confidence": None,
+            "priority_classification_source": "TECHNICAL_FAILURE",
+            "priority_classification_review_required": True,
+            "ai_priority_reason": f"AI inference failed: {exc}. Manual review is required.",
+            "emergency_evidence_detected": has_safety_evidence(emergency_data.message),
+            "operational_safety_processing": has_safety_evidence(
+                emergency_data.message,
+                injured=emergency_data.injured,
+                trapped=emergency_data.trapped,
+                fire=emergency_data.fire,
+                medical_emergency=emergency_data.medical_emergency,
+            ),
+        }
 
     if ai_results.get("ai_relevant") is False and not any((
         emergency_data.injured,
